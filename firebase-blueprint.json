@@ -1,0 +1,177 @@
+{
+  "entities": {
+    "settings": {
+      "title": "Website Settings",
+      "description": "Global website configuration including SEO and contact info",
+      "type": "object",
+      "properties": {
+        "siteName": { "type": "string" },
+        "siteDescriptionEn": { "type": "string" },
+        "siteDescriptionAr": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "addressEn": { "type": "string" },
+        "addressAr": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "facebookUrl": { "type": "string" },
+        "twitterUrl": { "type": "string" },
+        "linkedinUrl": { "type": "string" },
+        "seoKeywordsEn": { "type": "string" },
+        "seoKeywordsAr": { "type": "string" }
+      },
+      "required": ["siteName", "phone", "email"]
+    },
+    "messages": {
+      "title": "Contact Messages",
+      "description": "Messages received from the contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "service": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "message"]
+    },
+    "articles": {
+      "title": "Articles",
+      "description": "Blog posts and news articles",
+      "type": "object",
+      "properties": {
+        "titleEn": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "contentEn": { "type": "string" },
+        "contentAr": { "type": "string" },
+        "excerptEn": { "type": "string" },
+        "excerptAr": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "author": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "published"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["titleEn", "contentEn", "status"]
+    },
+    "pages": {
+      "title": "Pages",
+      "description": "Static pages for the website",
+      "type": "object",
+      "properties": {
+        "titleEn": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "slug": { "type": "string" },
+        "contentEn": { "type": "string" },
+        "contentAr": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "published"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["titleEn", "slug", "status"]
+    },
+    "sections": {
+      "title": "Site Sections",
+      "description": "Content for homepage sections (Hero, About, etc.)",
+      "type": "object",
+      "properties": {
+        "heroTitleEn": { "type": "string" },
+        "heroTitleAr": { "type": "string" },
+        "heroSubEn": { "type": "string" },
+        "heroSubAr": { "type": "string" },
+        "heroImageUrl": { "type": "string" },
+        "aboutTitleEn": { "type": "string" },
+        "aboutTitleAr": { "type": "string" },
+        "aboutTextEn": { "type": "string" },
+        "aboutTextAr": { "type": "string" },
+        "aboutImageUrl": { "type": "string" },
+        "visionEn": { "type": "string" },
+        "visionAr": { "type": "string" },
+        "missionEn": { "type": "string" },
+        "missionAr": { "type": "string" },
+        "whyUsTitleEn": { "type": "string" },
+        "whyUsTitleAr": { "type": "string" },
+        "whyUsTextEn": { "type": "string" },
+        "whyUsTextAr": { "type": "string" },
+        "servicesTitleEn": { "type": "string" },
+        "servicesTitleAr": { "type": "string" },
+        "servicesTextEn": { "type": "string" },
+        "servicesTextAr": { "type": "string" },
+        "productsTitleEn": { "type": "string" },
+        "productsTitleAr": { "type": "string" },
+        "productsTextEn": { "type": "string" },
+        "productsTextAr": { "type": "string" },
+        "contactTitleEn": { "type": "string" },
+        "contactTitleAr": { "type": "string" },
+        "contactTextEn": { "type": "string" },
+        "contactTextAr": { "type": "string" },
+        "footerTextEn": { "type": "string" },
+        "footerTextAr": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "statsShipments": { "type": "string" },
+        "statsPartners": { "type": "string" },
+        "statsSatisfaction": { "type": "string" },
+        "statsExperience": { "type": "string" }
+      }
+    },
+    "services": {
+      "title": "Services",
+      "description": "Company services list",
+      "type": "object",
+      "properties": {
+        "titleEn": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "descriptionAr": { "type": "string" },
+        "icon": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["titleEn", "descriptionEn"]
+    },
+    "products": {
+      "title": "Products",
+      "description": "Company products or catalog items",
+      "type": "object",
+      "properties": {
+        "nameEn": { "type": "string" },
+        "nameAr": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "descriptionAr": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "price": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["nameEn", "imageUrl"]
+    }
+  },
+  "firestore": {
+    "settings/global": {
+      "schema": "settings",
+      "description": "Global settings document"
+    },
+    "messages/{messageId}": {
+      "schema": "messages",
+      "description": "Individual contact messages"
+    },
+    "articles/{articleId}": {
+      "schema": "articles",
+      "description": "News and blog posts"
+    },
+    "services/{serviceId}": {
+      "schema": "services",
+      "description": "Company services"
+    },
+    "products/{productId}": {
+      "schema": "products",
+      "description": "Company products"
+    },
+    "pages/{pageId}": {
+      "schema": "pages",
+      "description": "Custom pages"
+    },
+    "sections/content": {
+      "schema": "sections",
+      "description": "Homepage section content"
+    }
+  }
+}

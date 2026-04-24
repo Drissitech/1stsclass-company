@@ -1,0 +1,116 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // -------------------------------------------------------------
+    // HELPERS
+    // -------------------------------------------------------------
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner() {
+      return isVerified() && request.auth.token.email == 'techbydrissi@gmail.com';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // -------------------------------------------------------------
+    // VALIDATORS
+    // -------------------------------------------------------------
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['name', 'email', 'message']) &&
+             data.keys().size() <= 7 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.email is string && data.email.size() > 3 &&
+             data.message is string && data.message.size() > 0 && data.message.size() < 5000;
+    }
+
+    function isValidArticle(data) {
+      return data.keys().hasAll(['titleEn', 'contentEn', 'status']) &&
+             data.titleEn is string && data.titleEn.size() < 200 &&
+             data.status in ['draft', 'published'];
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll(['nameEn', 'imageUrl']) &&
+             data.nameEn is string && data.nameEn.size() < 200 &&
+             data.imageUrl is string && data.imageUrl.size() < 1000;
+    }
+
+    function isValidService(data) {
+      return data.keys().hasAll(['titleEn', 'descriptionEn']) &&
+             data.titleEn is string && data.titleEn.size() < 200;
+    }
+
+    // -------------------------------------------------------------
+    // ROUTES
+    // -------------------------------------------------------------
+
+    // Global Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isValidId(settingId) && isOwner();
+    }
+
+    match /sections/{sectionId} {
+      allow read: if true;
+      allow write: if isValidId(sectionId) && isOwner();
+    }
+
+    match /articles/{articleId} {
+      allow read: if true; // In production, usually filter by status == 'published'
+      allow create: if isValidId(articleId) && isOwner() && isValidArticle(incoming());
+      allow update: if isOwner() && isValidArticle(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['titleEn', 'titleAr', 'contentEn', 'contentAr', 'excerptEn', 'excerptAr', 'imageUrl', 'author', 'status', 'updatedAt'])
+      );
+      allow delete: if isOwner();
+    }
+
+    match /pages/{pageId} {
+      allow read: if true;
+      allow create: if isValidId(pageId) && isOwner();
+      allow update: if isOwner();
+      allow delete: if isOwner();
+    }
+
+    match /services/{serviceId} {
+      allow read: if true;
+      allow create: if isValidId(serviceId) && isOwner() && isValidService(incoming());
+      allow update: if isOwner() && isValidService(incoming());
+      allow delete: if isOwner();
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isValidId(productId) && isOwner() && isValidProduct(incoming());
+      allow update: if isOwner() && isValidProduct(incoming());
+      allow delete: if isOwner();
+    }
+
+    match /messages/{messageId} {
+      allow create: if isValidId(messageId) && isValidMessage(incoming());
+      allow list, get, delete: if isOwner();
+    }
+  }
+}

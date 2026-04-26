@@ -32,7 +32,7 @@ export function FloatingContact({ phone }: FloatingContactProps) {
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         whileHover={{ scale: 1.1 }}
-        className="fixed bottom-6 right-6 z-[60] w-14 h-14 bg-deep-green text-white rounded-full flex items-center justify-center shadow-2xl transition-transform hover:shadow-deep-green/40 md:right-24"
+        className="fixed bottom-6 right-6 z-[60] w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl transition-transform hover:shadow-primary/40 md:right-24"
         aria-label="Call us"
       >
         <Phone className="w-7 h-7" />

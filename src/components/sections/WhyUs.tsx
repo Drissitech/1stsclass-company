@@ -22,8 +22,8 @@ export function WhyUs() {
     : (t('whyUs.points', { returnObjects: true }) as string[]);
 
   return (
-    <section className="py-24 bg-deep-green text-white relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+    <section className="py-24 bg-primary text-white relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
       
       <div className="container mx-auto px-4 relative z-10">
@@ -59,7 +59,7 @@ export function WhyUs() {
                 className="flex items-start gap-4 p-6 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 transition-colors group"
               >
                 <div className="mt-1">
-                   <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center text-gold group-hover:scale-110 transition-transform">
+                   <div className="w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
                       <CheckCircle2 className="w-4 h-4" />
                    </div>
                 </div>

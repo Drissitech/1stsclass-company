@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { Send, Phone, Mail, MapPin } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -50,10 +48,9 @@ export function ContactForm() {
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
     try {
-      await addDoc(collection(db, 'messages'), {
-        ...data,
-        createdAt: serverTimestamp(),
-      });
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      console.log("Mock data submitted:", data);
       toast.success(i18n.language === 'ar' ? 'تم إرسال رسالتك بنجاح!' : 'Message sent successfully!');
       reset();
     } catch (error) {
@@ -73,14 +70,14 @@ export function ContactForm() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-deep-green mb-6">{title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">{title}</h2>
             <p className="text-lg text-muted-foreground mb-12 max-w-lg whitespace-pre-wrap">
               {description}
             </p>
 
             <div className="space-y-8">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center text-gold shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
                   <Phone className="h-6 w-6" />
                 </div>
                 <div>
@@ -89,7 +86,7 @@ export function ContactForm() {
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center text-gold shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
                   <Mail className="h-6 w-6" />
                 </div>
                 <div>
@@ -98,7 +95,7 @@ export function ContactForm() {
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center text-gold shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
                   <MapPin className="h-6 w-6" />
                 </div>
                 <div>
@@ -110,15 +107,15 @@ export function ContactForm() {
               </div>
             </div>
 
-            <div className="mt-12 p-8 bg-deep-green rounded-3xl text-white relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-gold/20 rounded-full translate-x-10 -translate-y-10 group-hover:scale-125 transition-transform duration-700" />
+            <div className="mt-12 p-8 bg-primary rounded-3xl text-white relative overflow-hidden group">
+               <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/20 rounded-full translate-x-10 -translate-y-10 group-hover:scale-125 transition-transform duration-700" />
                <h3 className="text-2xl font-bold mb-4 relative z-10">{t('hero.ctaStart')}</h3>
                <p className="opacity-80 mb-6 relative z-10">
                  {i18n.language === 'ar' 
                    ? 'ابدأ اليوم شراكة استراتيجية تدعم نمو أعمالك.' 
                    : 'Start a strategic partnership today that supports your business growth.'}
                </p>
-               <Button className="bg-white text-deep-green hover:bg-gold hover:text-white border-none transition-all relative z-10 font-bold">
+               <Button className="bg-white text-primary hover:bg-secondary hover:text-white border-none transition-all relative z-10 font-bold">
                   {t('contact.info.whatsapp')}
                </Button>
             </div>
@@ -128,7 +125,7 @@ export function ContactForm() {
             initial={{ opacity: 0, x: i18n.language === 'ar' ? -50 : 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="bg-accent/40 p-8 md:p-12 rounded-[2.5rem] border border-border shadow-2xl shadow-deep-green/5"
+            className="bg-accent/20 p-8 md:p-12 rounded-[2.5rem] border border-border shadow-2xl shadow-primary/5"
           >
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -183,7 +180,7 @@ export function ContactForm() {
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="w-full bg-gold hover:bg-gold/90 text-white h-14 text-lg font-bold rounded-xl shadow-lg shadow-gold/20"
+                className="w-full bg-secondary hover:bg-secondary/90 text-white h-14 text-lg font-bold rounded-xl shadow-lg shadow-secondary/20"
               >
                 {isSubmitting ? (
                   <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>

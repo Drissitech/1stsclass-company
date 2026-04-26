@@ -18,11 +18,11 @@ export function Services() {
   }, []);
 
   const staticServices = [
-    { key: 'internationalSourcing', icon: Search, color: 'bg-blue-500/10 text-blue-600' },
-    { key: 'importExport', icon: Globe, color: 'bg-green-500/10 text-green-600' },
-    { key: 'shippingLogistics', icon: Truck, color: 'bg-orange-500/10 text-orange-600' },
-    { key: 'poManagement', icon: FileText, color: 'bg-purple-500/10 text-purple-600' },
-    { key: 'relationshipDev', icon: Handshake, color: 'bg-red-500/10 text-red-600' },
+    { key: 'internationalSourcing', icon: Search, color: 'bg-primary/10 text-primary' },
+    { key: 'importExport', icon: Globe, color: 'bg-secondary/10 text-secondary' },
+    { key: 'shippingLogistics', icon: Truck, color: 'bg-primary/10 text-primary' },
+    { key: 'poManagement', icon: FileText, color: 'bg-secondary/10 text-secondary' },
+    { key: 'relationshipDev', icon: Handshake, color: 'bg-primary/10 text-primary' },
   ];
 
   const title = content ? (isRtl ? content.servicesTitleAr : content.servicesTitleEn) : t('services.title');
@@ -33,7 +33,7 @@ export function Services() {
         title: isRtl ? s.titleAr : s.titleEn,
         description: isRtl ? s.descriptionAr : s.descriptionEn,
         icon: Shield,
-        color: 'bg-gold/10 text-gold shadow-lg shadow-gold/5'
+        color: 'bg-secondary/10 text-secondary shadow-lg shadow-secondary/5'
       }))
     : staticServices.map(s => ({
         title: t(`services.list.${s.key}.title`),
@@ -50,7 +50,7 @@ export function Services() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-deep-green mb-6"
+            className="text-4xl md:text-5xl font-bold text-primary mb-6"
           >
             {title}
           </motion.h2>
@@ -65,7 +65,7 @@ export function Services() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {displayServices.map((service, index) => {
             const Icon = service.icon;
             return (
@@ -76,13 +76,13 @@ export function Services() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="h-full border-none shadow-xl shadow-deep-green/5 hover:shadow-gold/10 transition-all group overflow-hidden bg-background">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gold/5 rounded-bl-full translate-x-12 -translate-y-12 group-hover:translate-x-0 group-hover:-translate-y-0 transition-transform duration-500" />
+                <Card className="h-full border-none shadow-xl shadow-primary/5 hover:shadow-secondary/10 transition-all group overflow-hidden bg-background">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-bl-full translate-x-12 -translate-y-12 group-hover:translate-x-0 group-hover:-translate-y-0 transition-transform duration-500" />
                   <CardHeader>
                     <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110", service.color)}>
                       <Icon className="h-7 w-7" />
                     </div>
-                    <CardTitle className="text-xl font-bold mb-4 group-hover:text-gold transition-colors">
+                    <CardTitle className="text-xl font-bold mb-4 group-hover:text-secondary transition-colors">
                       {service.title}
                     </CardTitle>
                     <CardDescription className="text-base leading-relaxed">
@@ -94,6 +94,20 @@ export function Services() {
             );
           })}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <a 
+            href="/services" 
+            className="inline-flex items-center gap-2 bg-secondary text-white px-10 py-4 rounded-xl font-bold hover:bg-secondary/90 transition-all shadow-xl shadow-secondary/20"
+          >
+            {isRtl ? 'عرض جميع الخدمات' : 'See All Services'}
+          </a>
+        </motion.div>
       </div>
     </section>
   );

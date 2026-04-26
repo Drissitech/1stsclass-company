@@ -38,7 +38,7 @@ export function Products() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-deep-green mb-6"
+            className="text-4xl md:text-5xl font-bold text-primary mb-6"
           >
             {title}
           </motion.h2>
@@ -63,22 +63,22 @@ export function Products() {
                   transition={{ delay: index * 0.1 }}
                   className="group relative"
                 >
-                   <div className="absolute inset-0 bg-gold/5 rounded-[2rem] transform translate-x-2 translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform" />
-                   <div className="relative bg-white border border-border overflow-hidden rounded-[2rem] h-full flex flex-col shadow-lg shadow-deep-green/5 group-hover:border-gold/50 transition-colors">
+                   <div className="absolute inset-0 bg-secondary/5 rounded-[2rem] transform translate-x-2 translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform" />
+                   <div className="relative bg-white border border-border overflow-hidden rounded-[2rem] h-full flex flex-col shadow-lg shadow-primary/5 group-hover:border-secondary/50 transition-colors">
                       <div className="aspect-video bg-accent relative overflow-hidden">
                          <img src={product.imageUrl} alt={isRtl ? product.nameAr : product.nameEn} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500" />
                       </div>
                       <div className="p-8 flex flex-col flex-1 items-start">
-                         <h3 className="text-xl font-bold text-deep-green mb-3">
+                         <h3 className="text-xl font-bold text-primary mb-3">
                            {isRtl ? product.nameAr : product.nameEn}
                          </h3>
                          <p className="text-muted-foreground text-sm leading-relaxed mb-6 line-clamp-3">
                             {isRtl ? product.descriptionAr : product.descriptionEn}
                          </p>
                          <div className="mt-auto pt-4 flex items-center justify-between w-full border-t border-border/10">
-                            <span className="text-gold font-bold text-sm">{product.price || t('nav.products')}</span>
-                            <Badge variant="outline" className="border-gold/30 text-gold uppercase tracking-widest text-[10px]">
-                              {t('nav.products')}
+                            <span className="text-secondary font-bold text-sm">{product.price || t('nav.products')}</span>
+                            <Badge variant="outline" className="border-secondary/30 text-secondary uppercase tracking-widest text-[10px]">
+                               {t('nav.products')}
                             </Badge>
                          </div>
                       </div>
@@ -98,17 +98,17 @@ export function Products() {
                    className="group relative"
                  >
                     <div className="absolute inset-0 bg-gold/5 rounded-[2rem] transform translate-x-2 translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform" />
-                    <div className="relative bg-white border border-border p-8 rounded-[2rem] h-full flex flex-col items-center text-center shadow-lg shadow-deep-green/5 group-hover:border-gold/50 transition-colors">
+                    <div className="relative bg-white border border-border p-8 rounded-[2rem] h-full flex flex-col items-center text-center shadow-lg shadow-primary/5 group-hover:border-secondary/50 transition-colors">
                        <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center mb-6", cat.color)}>
                           <Icon className="h-8 w-8" />
                        </div>
-                       <h3 className="text-xl font-bold text-deep-green mb-4">
+                       <h3 className="text-xl font-bold text-primary mb-4">
                          {t(`products.categories.${cat.key}`)}
                        </h3>
                        <p className="text-muted-foreground text-sm leading-relaxed mb-6">
                          {i18n.language === 'ar' ? 'نحن نوفر أفضل الحلول لتأمين هذه المنتجات.' : 'We provide the best solutions to secure these products.'}
                        </p>
-                       <Badge variant="outline" className="mt-auto border-gold/30 text-gold uppercase tracking-widest px-4 py-1">
+                       <Badge variant="outline" className="mt-auto border-secondary/30 text-secondary uppercase tracking-widest px-4 py-1">
                          {t('nav.products')}
                        </Badge>
                     </div>
@@ -122,17 +122,31 @@ export function Products() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-16 p-8 bg-accent rounded-[2rem] border border-gold/10 flex flex-col md:flex-row items-center justify-between gap-8"
+          className="mt-12 text-center"
+        >
+          <a 
+            href="/products" 
+            className="inline-flex items-center gap-2 bg-primary text-white px-10 py-4 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-xl shadow-primary/20"
+          >
+            {isRtl ? 'مشاهدة جميع المنتجات' : 'View All Products'}
+          </a>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-16 p-8 bg-accent/20 rounded-[2rem] border border-secondary/10 flex flex-col md:flex-row items-center justify-between gap-8"
         >
           <div className="flex items-center gap-6">
-             <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center text-gold shrink-0">
+             <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
                 <Box className="h-8 w-8" />
              </div>
-             <p className="text-lg font-medium text-deep-green max-w-lg">
+             <p className="text-lg font-medium text-primary max-w-lg">
                 {t('products.customRequest')}
              </p>
           </div>
-          <button className="bg-deep-green text-white px-8 h-14 rounded-xl font-bold hover:bg-deep-green/90 transition-all shadow-xl shadow-deep-green/20">
+          <button className="bg-primary text-white px-8 h-14 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-xl shadow-primary/20">
             {t('contact.form.send')}
           </button>
         </motion.div>

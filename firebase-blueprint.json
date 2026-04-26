@@ -45,11 +45,20 @@
         "titleAr": { "type": "string" },
         "contentEn": { "type": "string" },
         "contentAr": { "type": "string" },
+        "isHtml": { "type": "boolean" },
+        "htmlContentEn": { "type": "string" },
+        "htmlContentAr": { "type": "string" },
         "excerptEn": { "type": "string" },
         "excerptAr": { "type": "string" },
         "imageUrl": { "type": "string" },
         "author": { "type": "string" },
         "status": { "type": "string", "enum": ["draft", "published"] },
+        "seoTitleEn": { "type": "string" },
+        "seoTitleAr": { "type": "string" },
+        "seoDescriptionEn": { "type": "string" },
+        "seoDescriptionAr": { "type": "string" },
+        "seoKeywordsEn": { "type": "string" },
+        "seoKeywordsAr": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
@@ -66,6 +75,12 @@
         "contentEn": { "type": "string" },
         "contentAr": { "type": "string" },
         "status": { "type": "string", "enum": ["draft", "published"] },
+        "seoTitleEn": { "type": "string" },
+        "seoTitleAr": { "type": "string" },
+        "seoDescriptionEn": { "type": "string" },
+        "seoDescriptionAr": { "type": "string" },
+        "seoKeywordsEn": { "type": "string" },
+        "seoKeywordsAr": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["titleEn", "slug", "status"]
@@ -111,7 +126,11 @@
         "statsShipments": { "type": "string" },
         "statsPartners": { "type": "string" },
         "statsSatisfaction": { "type": "string" },
-        "statsExperience": { "type": "string" }
+        "statsExperience": { "type": "string" },
+        "homepageSeoTitleEn": { "type": "string" },
+        "homepageSeoTitleAr": { "type": "string" },
+        "homepageSeoDescriptionEn": { "type": "string" },
+        "homepageSeoDescriptionAr": { "type": "string" }
       }
     },
     "services": {

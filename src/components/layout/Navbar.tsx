@@ -22,15 +22,15 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const logoUrl = content?.logoUrl || "https://firebasestorage.googleapis.com/v0/b/gen-lang-client-0642593940.firebasestorage.app/o/logo.png?alt=media";
+  const logoUrl = content?.logoUrl || "/logo.png";
 
   const navItems = [
     { name: t('nav.home'), path: '/', type: 'link' },
-    { name: t('nav.services'), path: '/#services', type: 'anchor' },
+    { name: t('nav.services'), path: '/services', type: 'link' },
     { name: i18n.language === 'ar' ? 'المدونة' : 'Blog', path: '/blog', type: 'link' },
-    { name: t('nav.products'), path: '/#products', type: 'anchor' },
-    { name: t('nav.about'), path: '/#about', type: 'anchor' },
-    { name: t('nav.contact'), path: '/#contact', type: 'anchor' },
+    { name: t('nav.products'), path: '/products', type: 'link' },
+    { name: t('nav.about'), path: '/about', type: 'link' },
+    { name: t('nav.contact'), path: '/contact', type: 'link' },
   ];
 
   const isAdminPage = location.pathname.startsWith('/admin');
@@ -57,8 +57,7 @@ export function Navbar() {
             }}
           />
           <div className="flex flex-col">
-            <span className="font-bold text-lg leading-tight tracking-tight text-deep-green">1ST CLASS</span>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-gold font-semibold">Advanced Co.</span>
+            <span className="font-bold text-lg leading-tight tracking-tight text-primary uppercase">1st Class Co.</span>
           </div>
         </Link>
 
@@ -67,37 +66,25 @@ export function Navbar() {
           <div className="flex items-center gap-6">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
-              if (item.type === 'link') {
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={cn(
-                      "text-sm font-medium hover:text-gold transition-colors relative group",
-                      isActive ? "text-gold" : "text-foreground"
-                    )}
-                  >
-                    {item.name}
-                    <span className={cn("absolute -bottom-1 left-0 h-0.5 bg-gold transition-all group-hover:w-full", isActive ? "w-full" : "w-0")} />
-                  </Link>
-                );
-              }
               return (
-                <a
+                <Link
                   key={item.path}
-                  href={item.path}
-                  className="text-sm font-medium hover:text-gold transition-colors relative group"
+                  to={item.path}
+                  className={cn(
+                    "text-sm font-medium hover:text-secondary transition-colors relative group",
+                    isActive ? "text-secondary" : "text-foreground"
+                  )}
                 >
                   {item.name}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all group-hover:w-full" />
-                </a>
+                  <span className={cn("absolute -bottom-1 left-0 h-0.5 bg-secondary transition-all group-hover:w-full", isActive ? "w-full" : "w-0")} />
+                </Link>
               );
             })}
           </div>
           <div className="h-6 w-px bg-border mx-2" />
           <LanguageToggle />
-          <Button asChild className="bg-deep-green hover:bg-deep-green/90 text-white shadow-lg shadow-deep-green/20">
-            <a href="/#contact">{t('hero.ctaRequest')}</a>
+          <Button asChild className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20">
+            <Link to="/contact">{t('hero.ctaRequest')}</Link>
           </Button>
         </div>
 
@@ -125,34 +112,22 @@ export function Navbar() {
             <div className="container mx-auto px-4 py-6 flex flex-col gap-4">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
-                if (item.type === 'link') {
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => setIsOpen(false)}
-                      className={cn(
-                        "text-lg font-medium p-2 hover:bg-accent rounded-md transition-colors",
-                        isActive ? "text-gold bg-accent/50" : ""
-                      )}
-                    >
-                      {item.name}
-                    </Link>
-                  );
-                }
                 return (
-                  <a
+                  <Link
                     key={item.path}
-                    href={item.path}
+                    to={item.path}
                     onClick={() => setIsOpen(false)}
-                    className="text-lg font-medium p-2 hover:bg-accent rounded-md transition-colors"
+                    className={cn(
+                      "text-lg font-medium p-2 hover:bg-accent rounded-md transition-colors",
+                      isActive ? "text-secondary bg-accent/50" : ""
+                    )}
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 );
               })}
-              <Button asChild className="mt-4 w-full bg-deep-green text-white">
-                <a href="/#contact" onClick={() => setIsOpen(false)}>{t('hero.ctaRequest')}</a>
+              <Button asChild className="mt-4 w-full bg-primary text-white">
+                <Link to="/contact" onClick={() => setIsOpen(false)}>{t('hero.ctaRequest')}</Link>
               </Button>
             </div>
           </motion.div>

@@ -36,10 +36,10 @@ export function Stats() {
               }}
               className="text-center"
             >
-              <div className="text-4xl md:text-5xl font-bold text-deep-green mb-2 racking-tighter">
+              <div className="text-4xl md:text-5xl font-bold text-primary mb-2 racking-tighter">
                 {stat.value}
               </div>
-              <div className="text-sm font-bold text-gold uppercase tracking-widest">
+              <div className="text-sm font-bold text-secondary uppercase tracking-widest">
                 {stat.label}
               </div>
             </motion.div>

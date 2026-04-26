@@ -1,9 +1,91 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Routes, Route, Link } from 'react-router-dom';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { collection, query, orderBy, onSnapshot, doc, getDoc, getDocs, setDoc, addDoc, deleteDoc, Timestamp } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
 import { Sidebar } from '@/components/layout/AdminSidebar';
+
+// Mock Firestore for no-API mode - Using localStorage for simulation
+const MOCK_STORAGE_KEYS: Record<string, string> = {
+  'settings/global': 'site_settings',
+  'sections/content': 'site_content',
+  'articles': 'site_articles',
+  'services': 'site_services',
+  'products': 'site_products',
+  'pages': 'site_pages',
+  'messages': 'site_messages'
+};
+
+const getStorageData = (col: string, id?: string) => {
+  const key = id ? `${col}/${id}` : col;
+  const storageKey = MOCK_STORAGE_KEYS[key] || key;
+  const stored = localStorage.getItem(storageKey);
+  return stored ? JSON.parse(stored) : null;
+};
+
+const setStorageData = (col: string, id: string | undefined, data: any) => {
+  const key = id ? `${col}/${id}` : col;
+  const storageKey = MOCK_STORAGE_KEYS[key] || key;
+  localStorage.setItem(storageKey, JSON.stringify(data));
+};
+
+const db = {};
+const collection = (db: any, name: string) => name;
+const query = (col: string, ...args: any[]) => col;
+const orderBy = (...args: any[]) => ({});
+const where = (...args: any[]) => ({});
+
+const onSnapshot = (q: string, cb: any) => {
+  const data = getStorageData(q);
+  if (Array.isArray(data)) {
+    cb({ docs: data.map(d => ({ id: d.id, data: () => d })) });
+  } else {
+    cb({ docs: [] });
+  }
+  return () => {};
+};
+
+const doc = (db: any, col: string, id?: string) => ({ col, id });
+
+const getDoc = (ref: any) => {
+  const data = getStorageData(ref.col, ref.id);
+  return Promise.resolve({ 
+    exists: () => !!data, 
+    data: () => data 
+  });
+};
+
+const getDocs = (col: string) => {
+  const data = getStorageData(col);
+  return Promise.resolve({ 
+    empty: !data || data.length === 0, 
+    docs: (Array.isArray(data) ? data : []).map(d => ({ id: d.id, data: () => d })) 
+  });
+};
+
+const setDoc = (ref: any, data: any, options?: any) => {
+  if (options?.merge) {
+    const existing = getStorageData(ref.col, ref.id) || {};
+    setStorageData(ref.col, ref.id, { ...existing, ...data });
+  } else {
+    setStorageData(ref.col, ref.id, data);
+  }
+  return Promise.resolve();
+};
+
+const addDoc = (col: string, data: any) => {
+  const existing = getStorageData(col) || [];
+  const newItem = { ...data, id: Math.random().toString(36).substr(2, 9) };
+  setStorageData(col, undefined, [...existing, newItem]);
+  return Promise.resolve(newItem);
+};
+
+const deleteDoc = (ref: any) => {
+  const existing = getStorageData(ref.col) || [];
+  const filtered = existing.filter((item: any) => item.id !== ref.id);
+  setStorageData(ref.col, undefined, filtered);
+  return Promise.resolve();
+};
+
+const Timestamp = { now: () => new Date(), fromDate: (d: Date) => d };
+
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -200,7 +282,8 @@ function ServicesView() {
 
 function ServiceEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?: string }) {
   const [formData, setFormData] = useState<any>({
-    titleEn: '', titleAr: '', descriptionEn: '', descriptionAr: '', icon: 'Shield', order: 0
+    titleEn: '', titleAr: '', descriptionEn: '', descriptionAr: '', icon: 'Shield', order: 0,
+    seoTitleEn: '', seoTitleAr: '', seoDescriptionEn: '', seoDescriptionAr: ''
   });
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
@@ -208,7 +291,11 @@ function ServiceEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?:
   useEffect(() => {
     if (mode === 'edit' && id) {
       getDoc(doc(db, 'services', id)).then(snap => {
-        if (snap.exists()) setFormData(snap.data());
+        if (snap.exists()) setFormData({
+          titleEn: '', titleAr: '', descriptionEn: '', descriptionAr: '', icon: 'Shield', order: 0,
+          seoTitleEn: '', seoTitleAr: '', seoDescriptionEn: '', seoDescriptionAr: '',
+          ...snap.data()
+        });
       });
     }
   }, [mode, id]);
@@ -264,6 +351,20 @@ function ServiceEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?:
                 <div className="space-y-2 text-right">
                    <Label>الوصف (العربية)</Label>
                    <Textarea dir="rtl" rows={4} value={formData.descriptionAr} onChange={e => setFormData({...formData, descriptionAr: e.target.value})} className="rounded-xl" />
+                </div>
+             </div>
+             <div className="space-y-6 pt-6 border-t border-border/50">
+                <h4 className="font-bold text-deep-green flex items-center gap-2">
+                   <Search className="w-4 h-4 text-gold" />
+                   Service SEO (Optional)
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-2"><Label>SEO Title (EN)</Label><Input value={formData.seoTitleEn} onChange={e => setFormData({...formData, seoTitleEn: e.target.value})} className="rounded-xl" /></div>
+                   <div className="space-y-2 text-right"><Label>عنوان SEO (AR)</Label><Input dir="rtl" value={formData.seoTitleAr} onChange={e => setFormData({...formData, seoTitleAr: e.target.value})} className="rounded-xl" /></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-2"><Label>SEO Description (EN)</Label><Textarea rows={2} value={formData.seoDescriptionEn} onChange={e => setFormData({...formData, seoDescriptionEn: e.target.value})} className="rounded-xl" /></div>
+                   <div className="space-y-2 text-right"><Label>وصف SEO (AR)</Label><Textarea dir="rtl" rows={2} value={formData.seoDescriptionAr} onChange={e => setFormData({...formData, seoDescriptionAr: e.target.value})} className="rounded-xl" /></div>
                 </div>
              </div>
              <Button type="submit" disabled={saving} className="w-full bg-deep-green h-14 rounded-2xl font-bold text-white shadow-lg shadow-deep-green/10">
@@ -341,7 +442,8 @@ function ProductsView() {
 
 function ProductEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?: string }) {
   const [formData, setFormData] = useState<any>({
-    nameEn: '', nameAr: '', descriptionEn: '', descriptionAr: '', imageUrl: '', price: '', order: 0
+    nameEn: '', nameAr: '', descriptionEn: '', descriptionAr: '', imageUrl: '', price: '', order: 0,
+    seoTitleEn: '', seoTitleAr: '', seoDescriptionEn: '', seoDescriptionAr: ''
   });
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
@@ -349,7 +451,11 @@ function ProductEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?:
   useEffect(() => {
     if (mode === 'edit' && id) {
       getDoc(doc(db, 'products', id)).then(snap => {
-        if (snap.exists()) setFormData(snap.data());
+        if (snap.exists()) setFormData({
+          nameEn: '', nameAr: '', descriptionEn: '', descriptionAr: '', imageUrl: '', price: '', order: 0,
+          seoTitleEn: '', seoTitleAr: '', seoDescriptionEn: '', seoDescriptionAr: '',
+          ...snap.data()
+        });
       });
     }
   }, [mode, id]);
@@ -398,6 +504,20 @@ function ProductEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?:
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2"><Label>Description (EN)</Label><Textarea rows={4} value={formData.descriptionEn} onChange={e => setFormData({...formData, descriptionEn: e.target.value})} required className="rounded-xl" /></div>
                 <div className="space-y-2 text-right"><Label>الوصف (AR)</Label><Textarea dir="rtl" rows={4} value={formData.descriptionAr} onChange={e => setFormData({...formData, descriptionAr: e.target.value})} className="rounded-xl" /></div>
+             </div>
+             <div className="space-y-6 pt-6 border-t border-border/50">
+                <h4 className="font-bold text-deep-green flex items-center gap-2">
+                   <Search className="w-4 h-4 text-gold" />
+                   Product SEO (Optional)
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-2"><Label>SEO Title (EN)</Label><Input value={formData.seoTitleEn} onChange={e => setFormData({...formData, seoTitleEn: e.target.value})} className="rounded-xl" /></div>
+                   <div className="space-y-2 text-right"><Label>عنوان SEO (AR)</Label><Input dir="rtl" value={formData.seoTitleAr} onChange={e => setFormData({...formData, seoTitleAr: e.target.value})} className="rounded-xl" /></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-2"><Label>SEO Description (EN)</Label><Textarea rows={2} value={formData.seoDescriptionEn} onChange={e => setFormData({...formData, seoDescriptionEn: e.target.value})} className="rounded-xl" /></div>
+                   <div className="space-y-2 text-right"><Label>وصف SEO (AR)</Label><Textarea dir="rtl" rows={2} value={formData.seoDescriptionAr} onChange={e => setFormData({...formData, seoDescriptionAr: e.target.value})} className="rounded-xl" /></div>
+                </div>
              </div>
              <Button type="submit" disabled={saving} className="w-full bg-deep-green h-14 rounded-2xl font-bold">
                 {saving ? 'Saving...' : 'Confirm Changes'}
@@ -469,7 +589,8 @@ function PagesView() {
 
 function PageEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?: string }) {
   const [formData, setFormData] = useState<any>({
-    titleEn: '', titleAr: '', slug: '', contentEn: '', contentAr: '', status: 'draft'
+    titleEn: '', titleAr: '', slug: '', contentEn: '', contentAr: '', status: 'draft',
+    seoTitleEn: '', seoTitleAr: '', seoDescriptionEn: '', seoDescriptionAr: '', seoKeywordsEn: '', seoKeywordsAr: ''
   });
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
@@ -477,7 +598,11 @@ function PageEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?: st
   useEffect(() => {
     if (mode === 'edit' && id) {
       getDoc(doc(db, 'pages', id)).then(snap => {
-        if (snap.exists()) setFormData(snap.data());
+        if (snap.exists()) setFormData({
+          titleEn: '', titleAr: '', slug: '', contentEn: '', contentAr: '', status: 'draft',
+          seoTitleEn: '', seoTitleAr: '', seoDescriptionEn: '', seoDescriptionAr: '', seoKeywordsEn: '', seoKeywordsAr: '',
+          ...snap.data()
+        });
       });
     }
   }, [mode, id]);
@@ -519,6 +644,20 @@ function PageEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?: st
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2"><Label>Content (EN)</Label><Textarea rows={10} value={formData.contentEn} onChange={e => setFormData({...formData, contentEn: e.target.value})} className="rounded-xl" /></div>
                 <div className="space-y-2 text-right"><Label>المحتوى (AR)</Label><Textarea dir="rtl" rows={10} value={formData.contentAr} onChange={e => setFormData({...formData, contentAr: e.target.value})} className="rounded-xl" /></div>
+             </div>
+             <div className="space-y-6 pt-6 border-t border-border/50">
+                <h4 className="font-bold text-deep-green flex items-center gap-2">
+                   <Search className="w-4 h-4 text-gold" />
+                   Page SEO (Optional)
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-2"><Label>SEO Title (EN)</Label><Input value={formData.seoTitleEn} onChange={e => setFormData({...formData, seoTitleEn: e.target.value})} className="rounded-xl" /></div>
+                   <div className="space-y-2 text-right"><Label>عنوان SEO (AR)</Label><Input dir="rtl" value={formData.seoTitleAr} onChange={e => setFormData({...formData, seoTitleAr: e.target.value})} className="rounded-xl" /></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-2"><Label>SEO Description (EN)</Label><Textarea rows={2} value={formData.seoDescriptionEn} onChange={e => setFormData({...formData, seoDescriptionEn: e.target.value})} className="rounded-xl" /></div>
+                   <div className="space-y-2 text-right"><Label>وصف SEO (AR)</Label><Textarea dir="rtl" rows={2} value={formData.seoDescriptionAr} onChange={e => setFormData({...formData, seoDescriptionAr: e.target.value})} className="rounded-xl" /></div>
+                </div>
              </div>
              <Button type="submit" disabled={saving} className="w-full bg-deep-green h-14 rounded-2xl font-bold">
                 {saving ? 'Publishing...' : 'Save Page'}
@@ -732,7 +871,9 @@ function ArticlesView() {
 
 function ArticleEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?: string }) {
   const [formData, setFormData] = useState<any>({
-    titleEn: '', titleAr: '', contentEn: '', contentAr: '', imageUrl: '', status: 'draft'
+    titleEn: '', titleAr: '', contentEn: '', contentAr: '', imageUrl: '', status: 'draft',
+    isHtml: false, htmlContentEn: '', htmlContentAr: '',
+    seoTitleEn: '', seoTitleAr: '', seoDescriptionEn: '', seoDescriptionAr: '', seoKeywordsEn: '', seoKeywordsAr: ''
   });
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
@@ -740,7 +881,12 @@ function ArticleEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?:
   useEffect(() => {
     if (mode === 'edit' && id) {
       getDoc(doc(db, 'articles', id)).then(snap => {
-        if (snap.exists()) setFormData(snap.data());
+        if (snap.exists()) setFormData({
+          titleEn: '', titleAr: '', contentEn: '', contentAr: '', imageUrl: '', status: 'draft',
+          isHtml: false, htmlContentEn: '', htmlContentAr: '',
+          seoTitleEn: '', seoTitleAr: '', seoDescriptionEn: '', seoDescriptionAr: '', seoKeywordsEn: '', seoKeywordsAr: '',
+          ...snap.data()
+        });
       });
     }
   }, [mode, id]);
@@ -802,15 +948,46 @@ function ArticleEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?:
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                   <div className="space-y-3">
-                      <Label className="text-deep-green font-bold uppercase text-[10px] tracking-widest">Article Body (English)</Label>
-                      <Textarea rows={12} value={formData.contentEn} onChange={e => setFormData({...formData, contentEn: e.target.value})} required className="rounded-xl border-border/50 text-sm leading-relaxed" />
-                   </div>
-                   <div className="space-y-3 text-right">
-                      <Label className="text-deep-green font-bold uppercase text-[10px] tracking-widest">محتوى المقال (العربية)</Label>
-                      <Textarea dir="rtl" rows={12} value={formData.contentAr} onChange={e => setFormData({...formData, contentAr: e.target.value})} className="rounded-xl border-border/50 text-sm leading-relaxed" />
-                   </div>
-                </div>
+                    <div className="space-y-3">
+                       <div className="flex items-center justify-between mb-2">
+                          <Label className="text-deep-green font-bold uppercase text-[10px] tracking-widest">Article Body (English)</Label>
+                          <div className="flex items-center gap-2">
+                             <Label className="text-[10px] uppercase font-bold text-muted-foreground">HTML Mode</Label>
+                             <input type="checkbox" checked={formData.isHtml} onChange={e => setFormData({...formData, isHtml: e.target.checked})} className="w-4 h-4" />
+                          </div>
+                       </div>
+                       {formData.isHtml ? (
+                          <Textarea rows={15} value={formData.htmlContentEn} onChange={e => setFormData({...formData, htmlContentEn: e.target.value})} placeholder="Pure HTML Content..." className="rounded-xl font-mono text-xs border-gold/30 bg-gold/5" />
+                       ) : (
+                          <Textarea rows={12} value={formData.contentEn} onChange={e => setFormData({...formData, contentEn: e.target.value})} required className="rounded-xl border-border/50 text-sm leading-relaxed" />
+                       )}
+                    </div>
+                    <div className="space-y-3 text-right">
+                       <div className="flex items-center justify-between mb-2 flex-row-reverse">
+                          <Label className="text-deep-green font-bold uppercase text-[10px] tracking-widest">محتوى المقال (العربية)</Label>
+                       </div>
+                       {formData.isHtml ? (
+                          <Textarea dir="ltr" rows={15} value={formData.htmlContentAr} onChange={e => setFormData({...formData, htmlContentAr: e.target.value})} placeholder="Pure HTML Content (Arabic context)..." className="rounded-xl font-mono text-xs border-gold/30 bg-gold/5" />
+                       ) : (
+                          <Textarea dir="rtl" rows={12} value={formData.contentAr} onChange={e => setFormData({...formData, contentAr: e.target.value})} className="rounded-xl border-border/50 text-sm leading-relaxed" />
+                       )}
+                    </div>
+                 </div>
+
+                 <div className="space-y-6 pt-6 border-t border-border/50">
+                    <h4 className="font-bold text-deep-green flex items-center gap-2">
+                       <Search className="w-4 h-4 text-gold" />
+                       Article SEO
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div className="space-y-2"><Label>SEO Title (EN)</Label><Input value={formData.seoTitleEn} onChange={e => setFormData({...formData, seoTitleEn: e.target.value})} className="rounded-xl" /></div>
+                       <div className="space-y-2 text-right"><Label>عنوان SEO (AR)</Label><Input dir="rtl" value={formData.seoTitleAr} onChange={e => setFormData({...formData, seoTitleAr: e.target.value})} className="rounded-xl" /></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div className="space-y-2"><Label>SEO Description (EN)</Label><Textarea rows={2} value={formData.seoDescriptionEn} onChange={e => setFormData({...formData, seoDescriptionEn: e.target.value})} className="rounded-xl" /></div>
+                       <div className="space-y-2 text-right"><Label>وصف SEO (AR)</Label><Textarea dir="rtl" rows={2} value={formData.seoDescriptionAr} onChange={e => setFormData({...formData, seoDescriptionAr: e.target.value})} className="rounded-xl" /></div>
+                    </div>
+                 </div>
 
                 <div className="flex items-center justify-between pt-6 border-t border-border/50">
                    <div className="space-y-2 w-48">
@@ -862,11 +1039,8 @@ function SiteContentView() {
         servicesTextEn: '', servicesTextAr: '',
         productsTitleEn: 'Our Products', productsTitleAr: 'منتجاتنا',
         productsTextEn: '', productsTextAr: '',
-        contactTitleEn: 'Contact Us', contactTitleAr: 'تواصل معنا',
-        contactTextEn: '', contactTextAr: '',
-        footerTextEn: '', footerTextAr: '',
-        logoUrl: '',
-        statsShipments: '500+', statsPartners: '20+', statsSatisfaction: '98%', statsExperience: '15+'
+        statsShipments: '500+', statsPartners: '20+', statsSatisfaction: '98%', statsExperience: '15+',
+        homepageSeoTitleEn: '', homepageSeoTitleAr: '', homepageSeoDescriptionEn: '', homepageSeoDescriptionAr: ''
       });
     });
   }, []);
@@ -876,7 +1050,7 @@ function SiteContentView() {
     setSaving(true);
     try {
       await setDoc(doc(db, 'sections', 'content'), content);
-      toast.success('Site content updated');
+      toast.success('Home page content updated');
     } catch (error) {
       toast.error('Failed to update');
     } finally {
@@ -890,13 +1064,13 @@ function SiteContentView() {
     <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl pb-20">
       <div className="flex items-center justify-between sticky top-[65px] bg-slate-50/80 backdrop-blur-md z-30 py-4 -mx-4 px-4 border-b border-border/50">
          <div>
-            <h2 className="text-3xl font-bold text-deep-green">Site Builder</h2>
-            <p className="text-muted-foreground">Manage every section of your homepage.</p>
+            <h2 className="text-3xl font-bold text-deep-green">Home Page Editor</h2>
+            <p className="text-muted-foreground">Manage the content specifically for your homepage sections.</p>
          </div>
          <Button onClick={handleSave} disabled={saving} className="bg-deep-green hover:bg-deep-green/90 h-12 px-8 rounded-xl font-bold shadow-xl shadow-deep-green/10">
             {saving ? 'Syncing...' : (
               <>
-                <CheckCircle2 className="w-5 h-5 mr-2" /> Save All Changes
+                <CheckCircle2 className="w-5 h-5 mr-2" /> Save Home Content
               </>
             )}
          </Button>
@@ -941,21 +1115,14 @@ function SiteContentView() {
             </CardContent>
          </Card>
 
-         {/* ABOUT & VISION/MISSION */}
+         {/* ABOUT SUMMARY */}
          <Card className="rounded-3xl border-border/50 overflow-hidden shadow-xl shadow-deep-green/5">
             <CardHeader className="bg-deep-green text-white p-6">
                <CardTitle className="text-lg font-bold flex items-center gap-2">
-                 <Globe className="w-5 h-5 text-gold" /> About Us, Vision & Mission
+                 <Globe className="w-5 h-5 text-gold" /> About Section (Home)
                </CardTitle>
             </CardHeader>
             <CardContent className="p-8 space-y-8">
-               <div className="space-y-3">
-                  <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">About Section Image URL</Label>
-                  <div className="flex gap-4">
-                     <Input value={content.aboutImageUrl} onChange={e => setContent({...content, aboutImageUrl: e.target.value})} className="rounded-xl" />
-                     {content.aboutImageUrl && <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border"><img src={content.aboutImageUrl} className="w-full h-full object-cover" /></div>}
-                  </div>
-               </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
                      <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Headline (English)</Label>
@@ -968,32 +1135,12 @@ function SiteContentView() {
                </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Mission Statement (English)</Label>
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Summary Text (English)</Label>
                      <Textarea rows={6} value={content.aboutTextEn} onChange={e => setContent({...content, aboutTextEn: e.target.value})} className="rounded-xl leading-relaxed" />
                   </div>
                   <div className="space-y-3 text-right">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">بيان المهمة (العربية)</Label>
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">ملخص النص (العربية)</Label>
                      <Textarea dir="rtl" rows={6} value={content.aboutTextAr} onChange={e => setContent({...content, aboutTextAr: e.target.value})} className="rounded-xl leading-relaxed" />
-                  </div>
-               </div>
-               <div className="pt-6 border-t border-border/50 grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-gold font-bold">Vision (English)</Label>
-                     <Textarea rows={3} value={content.visionEn} onChange={e => setContent({...content, visionEn: e.target.value})} className="rounded-xl" />
-                  </div>
-                  <div className="space-y-3 text-right">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-gold font-bold">الرؤية (العربية)</Label>
-                     <Textarea dir="rtl" rows={3} value={content.visionAr} onChange={e => setContent({...content, visionAr: e.target.value})} className="rounded-xl" />
-                  </div>
-               </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-gold font-bold">Mission Detail (English)</Label>
-                     <Textarea rows={3} value={content.missionEn} onChange={e => setContent({...content, missionEn: e.target.value})} className="rounded-xl" />
-                  </div>
-                  <div className="space-y-3 text-right">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-gold font-bold">تفاصيل المهمة (العربية)</Label>
-                     <Textarea dir="rtl" rows={3} value={content.missionAr} onChange={e => setContent({...content, missionAr: e.target.value})} className="rounded-xl" />
                   </div>
                </div>
             </CardContent>
@@ -1017,47 +1164,37 @@ function SiteContentView() {
                      <Input dir="rtl" value={content.whyUsTitleAr} onChange={e => setContent({...content, whyUsTitleAr: e.target.value})} className="rounded-xl" />
                   </div>
                </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-border/50">
                   <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Description (EN)</Label>
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-gold font-bold">Why Us Text (EN)</Label>
                      <Textarea rows={4} value={content.whyUsTextEn} onChange={e => setContent({...content, whyUsTextEn: e.target.value})} className="rounded-xl" />
                   </div>
                   <div className="space-y-3 text-right">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">الوصف (AR)</Label>
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-gold font-bold">نص لماذا نحن (AR)</Label>
                      <Textarea dir="rtl" rows={4} value={content.whyUsTextAr} onChange={e => setContent({...content, whyUsTextAr: e.target.value})} className="rounded-xl" />
-                  </div>
-               </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-border/50">
-                  <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-gold font-bold">Why Us Points (EN - Newline separated)</Label>
-                     <Textarea rows={6} value={content.whyUsPointsEn} onChange={e => setContent({...content, whyUsPointsEn: e.target.value})} className="rounded-xl" />
-                  </div>
-                  <div className="space-y-3 text-right">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-gold font-bold">نقاط لماذا نحن (AR - سطر جديد لكل نقطة)</Label>
-                     <Textarea dir="rtl" rows={6} value={content.whyUsPointsAr} onChange={e => setContent({...content, whyUsPointsAr: e.target.value})} className="rounded-xl" />
                   </div>
                </div>
             </CardContent>
          </Card>
 
-         {/* SERVICES & PRODUCTS HEADERS */}
+         {/* SECTION HEADERS */}
          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-white">
             <Card className="rounded-3xl border-none overflow-hidden bg-deep-green">
-               <CardHeader><CardTitle className="text-sm font-bold flex items-center gap-2"><Layers className="w-4 h-4 text-gold" /> Services Header</CardTitle></CardHeader>
+               <CardHeader><CardTitle className="text-sm font-bold flex items-center gap-2"><Layers className="w-4 h-4 text-gold" /> Services Header (Home)</CardTitle></CardHeader>
                <CardContent className="space-y-4">
                   <Input value={content.servicesTitleEn} onChange={e => setContent({...content, servicesTitleEn: e.target.value})} placeholder="Title (EN)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
                   <Input dir="rtl" value={content.servicesTitleAr} onChange={e => setContent({...content, servicesTitleAr: e.target.value})} placeholder="العنوان (AR)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
-                  <Textarea value={content.servicesTextEn} onChange={e => setContent({...content, servicesTextEn: e.target.value})} placeholder="Subtext (EN)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
-                  <Textarea dir="rtl" value={content.servicesTextAr} onChange={e => setContent({...content, servicesTextAr: e.target.value})} placeholder="النص (AR)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
+                  <Textarea value={content.servicesTextEn} onChange={e => setContent({...content, servicesTextEn: e.target.value})} placeholder="Short Description (EN)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
+                  <Textarea dir="rtl" value={content.servicesTextAr} onChange={e => setContent({...content, servicesTextAr: e.target.value})} placeholder="وصف قصير (AR)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
                </CardContent>
             </Card>
             <Card className="rounded-3xl border-none overflow-hidden bg-deep-green">
-               <CardHeader><CardTitle className="text-sm font-bold flex items-center gap-2"><Box className="w-4 h-4 text-gold" /> Products Header</CardTitle></CardHeader>
+               <CardHeader><CardTitle className="text-sm font-bold flex items-center gap-2"><Box className="w-4 h-4 text-gold" /> Products Header (Home)</CardTitle></CardHeader>
                <CardContent className="space-y-4">
                   <Input value={content.productsTitleEn} onChange={e => setContent({...content, productsTitleEn: e.target.value})} placeholder="Title (EN)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
                   <Input dir="rtl" value={content.productsTitleAr} onChange={e => setContent({...content, productsTitleAr: e.target.value})} placeholder="العنوان (AR)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
-                  <Textarea value={content.productsTextEn} onChange={e => setContent({...content, productsTextEn: e.target.value})} placeholder="Subtext (EN)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
-                  <Textarea dir="rtl" value={content.productsTextAr} onChange={e => setContent({...content, productsTextAr: e.target.value})} placeholder="النص (AR)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
+                  <Textarea value={content.productsTextEn} onChange={e => setContent({...content, productsTextEn: e.target.value})} placeholder="Short Description (EN)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
+                  <Textarea dir="rtl" value={content.productsTextAr} onChange={e => setContent({...content, productsTextAr: e.target.value})} placeholder="وصف قصير (AR)" className="bg-white/10 border-none rounded-xl text-white placeholder:text-white/40" />
                </CardContent>
             </Card>
          </div>
@@ -1066,7 +1203,7 @@ function SiteContentView() {
          <Card className="rounded-3xl border-border/50 overflow-hidden shadow-xl shadow-deep-green/5">
             <CardHeader className="bg-deep-green text-white p-6">
                <CardTitle className="text-lg font-bold flex items-center gap-2">
-                 <BarChart3 className="w-5 h-5 text-gold" /> Platform Statistics
+                 <BarChart3 className="w-5 h-5 text-gold" /> Home Statistics
                </CardTitle>
             </CardHeader>
             <CardContent className="p-8">
@@ -1091,45 +1228,28 @@ function SiteContentView() {
             </CardContent>
          </Card>
 
-         {/* FOOTER & BRANDING */}
+         {/* HOME SEO */}
          <Card className="rounded-3xl border-border/50 overflow-hidden shadow-xl shadow-deep-green/5">
             <CardHeader className="bg-deep-green text-white p-6">
                <CardTitle className="text-lg font-bold flex items-center gap-2">
-                 <SettingsIcon className="w-5 h-5 text-gold" /> Branding & Footer
+                 <Search className="w-5 h-5 text-gold" /> Home Page SEO
                </CardTitle>
             </CardHeader>
-            <CardContent className="p-8 space-y-8">
-               <div className="space-y-3">
-                  <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Site Logo URL</Label>
-                  <div className="flex gap-4">
-                     <Input value={content.logoUrl} onChange={e => setContent({...content, logoUrl: e.target.value})} className="rounded-xl" />
-                     {content.logoUrl && <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border bg-deep-green p-1"><img src={content.logoUrl} className="w-full h-full object-contain" /></div>}
-                  </div>
-               </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Footer Subtext (English)</Label>
-                     <Textarea rows={3} value={content.footerTextEn} onChange={e => setContent({...content, footerTextEn: e.target.value})} className="rounded-xl" />
-                  </div>
-                  <div className="space-y-3 text-right">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">نص التذييل (العربية)</Label>
-                     <Textarea dir="rtl" rows={3} value={content.footerTextAr} onChange={e => setContent({...content, footerTextAr: e.target.value})} className="rounded-xl" />
-                  </div>
-               </div>
+            <CardContent className="p-8 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-2"><Label>Homepage SEO Title (EN)</Label><Input value={content.homepageSeoTitleEn} onChange={e => setContent({...content, homepageSeoTitleEn: e.target.value})} className="rounded-xl" /></div>
+                   <div className="space-y-2 text-right"><Label>عنوان SEO للرئيسية (AR)</Label><Input dir="rtl" value={content.homepageSeoTitleAr} onChange={e => setContent({...content, homepageSeoTitleAr: e.target.value})} className="rounded-xl" /></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-2"><Label>Homepage SEO Description (EN)</Label><Textarea rows={2} value={content.homepageSeoDescriptionEn} onChange={e => setContent({...content, homepageSeoDescriptionEn: e.target.value})} className="rounded-xl" /></div>
+                   <div className="space-y-2 text-right"><Label>وصف SEO للرئيسية (AR)</Label><Textarea dir="rtl" rows={2} value={content.homepageSeoDescriptionAr} onChange={e => setContent({...content, homepageSeoDescriptionAr: e.target.value})} className="rounded-xl" /></div>
+                </div>
             </CardContent>
          </Card>
 
-         <Card className="rounded-3xl border-none overflow-hidden bg-gold">
-            <CardContent className="p-8 flex items-center justify-between">
-               <div className="text-deep-green">
-                  <h4 className="text-xl font-bold">Synchronize Content</h4>
-                  <p className="text-deep-green/60 text-sm">Apply all the above changes to the live production environment.</p>
-               </div>
-               <Button type="submit" disabled={saving} className="bg-deep-green text-white hover:bg-deep-green/80 h-14 px-12 rounded-2xl font-bold shadow-2xl">
-                  {saving ? 'Syncing...' : 'Publish Content Updates'}
-               </Button>
-            </CardContent>
-         </Card>
+         <Button type="submit" disabled={saving} className="w-full bg-gold text-deep-green hover:bg-gold/90 h-16 rounded-2xl font-bold shadow-2xl">
+            {saving ? 'Saving...' : 'Update Home Page Content'}
+         </Button>
       </form>
     </div>
   );
@@ -1142,6 +1262,19 @@ function SettingsView() {
   useEffect(() => {
     getDoc(doc(db, 'settings', 'global')).then(snap => {
       if (snap.exists()) setSettings(snap.data());
+      else setSettings({
+        siteName: '1st Class Co.',
+        email: 'info@1stclass.com.sa',
+        phone: '+966 506963669',
+        addressEn: 'Riyadh, Saudi Arabia',
+        addressAr: 'الرياض، المملكة العربية السعودية',
+        logoUrl: '/logo.png',
+        faviconUrl: '/favicon.ico',
+        gtmId: '',
+        facebook: '', twitter: '', linkedin: '', instagram: '',
+        seoKeywordsEn: '', seoKeywordsAr: '',
+        siteDescriptionEn: '', siteDescriptionAr: ''
+      });
     });
   }, []);
 
@@ -1150,82 +1283,148 @@ function SettingsView() {
     setSaving(true);
     try {
       await setDoc(doc(db, 'settings', 'global'), settings);
-      toast.success('Site settings updated');
+      toast.success('Global settings updated');
     } catch (error) {
-      toast.error('Failed to update');
+      toast.error('Failed to update settings');
     } finally {
       setSaving(false);
     }
   };
 
-  if (!settings) return null;
+  if (!settings) return <div className="p-12 animate-pulse text-deep-green font-bold">Loading Settings...</div>;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl">
+    <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl pb-20">
       <div>
-         <h2 className="text-3xl font-bold text-deep-green">App Settings</h2>
-         <p className="text-muted-foreground">Manage global meta-data, contact points, and technical SEO.</p>
+         <h2 className="text-3xl font-bold text-deep-green">Global Settings</h2>
+         <p className="text-muted-foreground">Manage your brand identity, contact info, and global meta-data.</p>
       </div>
 
       <form onSubmit={handleSave} className="space-y-8">
          <Card className="rounded-3xl border-border/50 overflow-hidden shadow-xl shadow-deep-green/5">
-            <CardContent className="p-8 space-y-10">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <CardHeader className="bg-deep-green text-white p-6">
+               <CardTitle className="text-lg font-bold flex items-center gap-2">
+                 <Shield className="w-5 h-5 text-gold" /> Identity & Contact
+               </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8 space-y-8">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Agency Name</Label>
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Company Name</Label>
                      <Input value={settings.siteName} onChange={e => setSettings({...settings, siteName: e.target.value})} className="rounded-xl" />
                   </div>
                   <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Liaison Email</Label>
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Contact Email</Label>
                      <Input value={settings.email} onChange={e => setSettings({...settings, email: e.target.value})} className="rounded-xl" />
                   </div>
                </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Verified Phone</Label>
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Phone Number</Label>
                      <Input value={settings.phone} onChange={e => setSettings({...settings, phone: e.target.value})} className="rounded-xl" />
                   </div>
-               </div>
-
-               <div className="space-y-6 pt-6 border-t border-border/50">
-                  <h4 className="font-bold text-deep-green flex items-center gap-2">
-                     <Search className="w-4 h-4 text-gold" />
-                     Search Optimizations
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                     <div className="space-y-3">
-                        <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Keywords (EN)</Label>
-                        <Input value={settings.seoKeywordsEn} onChange={e => setSettings({...settings, seoKeywordsEn: e.target.value})} className="rounded-xl" />
-                     </div>
-                     <div className="space-y-3 text-right">
-                        <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">الكلمات المفتاحية</Label>
-                        <Input dir="rtl" value={settings.seoKeywordsAr} onChange={e => setSettings({...settings, seoKeywordsAr: e.target.value})} className="rounded-xl" />
-                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                     <div className="space-y-3">
-                        <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Discovery Snippet (EN)</Label>
-                        <Textarea rows={3} value={settings.siteDescriptionEn} onChange={e => setSettings({...settings, siteDescriptionEn: e.target.value})} className="rounded-xl" />
-                     </div>
-                     <div className="space-y-3 text-right">
-                        <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">وصف البحث</Label>
-                        <Textarea dir="rtl" rows={3} value={settings.siteDescriptionAr} onChange={e => setSettings({...settings, siteDescriptionAr: e.target.value})} className="rounded-xl" />
-                     </div>
+                  <div className="space-y-3">
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Logo URL Override</Label>
+                     <Input value={settings.logoUrl} onChange={e => setSettings({...settings, logoUrl: e.target.value})} className="rounded-xl" />
                   </div>
                </div>
 
-               <Button type="submit" disabled={saving} className="w-full bg-deep-green h-14 rounded-2xl font-bold shadow-xl shadow-deep-green/10">
-                  {saving ? 'Writing Data...' : 'Commit Settings'}
-               </Button>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Address (EN)</Label>
+                     <Input value={settings.addressEn} onChange={e => setSettings({...settings, addressEn: e.target.value})} className="rounded-xl" />
+                  </div>
+                  <div className="space-y-3 text-right">
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">العنوان (AR)</Label>
+                     <Input dir="rtl" value={settings.addressAr} onChange={e => setSettings({...settings, addressAr: e.target.value})} className="rounded-xl" />
+                  </div>
+               </div>
             </CardContent>
          </Card>
+
+         <Card className="rounded-3xl border-border/50 overflow-hidden shadow-xl shadow-deep-green/5">
+            <CardHeader className="bg-deep-green text-white p-6">
+               <CardTitle className="text-lg font-bold flex items-center gap-2">
+                 <Globe className="w-5 h-5 text-gold" /> Social Media
+               </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8 space-y-6">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2"><Label>Facebook URL</Label><Input value={settings.facebook} onChange={e => setSettings({...settings, facebook: e.target.value})} className="rounded-xl" /></div>
+                  <div className="space-y-2"><Label>Twitter URL</Label><Input value={settings.twitter} onChange={e => setSettings({...settings, twitter: e.target.value})} className="rounded-xl" /></div>
+                  <div className="space-y-2"><Label>LinkedIn URL</Label><Input value={settings.linkedin} onChange={e => setSettings({...settings, linkedin: e.target.value})} className="rounded-xl" /></div>
+                  <div className="space-y-2"><Label>Instagram URL</Label><Input value={settings.instagram} onChange={e => setSettings({...settings, instagram: e.target.value})} className="rounded-xl" /></div>
+               </div>
+            </CardContent>
+         </Card>
+
+         <Card className="rounded-3xl border-border/50 overflow-hidden shadow-xl shadow-deep-green/5">
+            <CardHeader className="bg-deep-green text-white p-6">
+               <CardTitle className="text-lg font-bold flex items-center gap-2">
+                 <Search className="w-5 h-5 text-gold" /> Global Meta & SEO
+               </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8 space-y-10">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="space-y-3">
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">SEO Keywords (EN)</Label>
+                     <Input value={settings.seoKeywordsEn} onChange={e => setSettings({...settings, seoKeywordsEn: e.target.value})} className="rounded-xl" />
+                  </div>
+                  <div className="space-y-3 text-right">
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">الكلمات المفتاحية (AR)</Label>
+                     <Input dir="rtl" value={settings.seoKeywordsAr} onChange={e => setSettings({...settings, seoKeywordsAr: e.target.value})} className="rounded-xl" />
+                  </div>
+               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="space-y-3">
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Global Site Description (EN)</Label>
+                     <Textarea rows={3} value={settings.siteDescriptionEn} onChange={e => setSettings({...settings, siteDescriptionEn: e.target.value})} className="rounded-xl" />
+                  </div>
+                  <div className="space-y-3 text-right">
+                     <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">وصف الموقع العام (AR)</Label>
+                     <Textarea dir="rtl" rows={3} value={settings.siteDescriptionAr} onChange={e => setSettings({...settings, siteDescriptionAr: e.target.value})} className="rounded-xl" />
+                  </div>
+               </div>
+            </CardContent>
+         </Card>
+
+         <Card className="rounded-3xl border-border/50 overflow-hidden shadow-xl shadow-deep-green/5">
+            <CardHeader className="bg-deep-green text-white p-6">
+               <CardTitle className="text-lg font-bold flex items-center gap-2">
+                 <Shield className="w-5 h-5 text-gold" /> Technical & Tracking
+               </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8 space-y-6">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                     <Label>Favicon URL</Label>
+                     <Input value={settings.faviconUrl} onChange={e => setSettings({...settings, faviconUrl: e.target.value})} className="rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                     <Label>Google GTM/GA ID</Label>
+                     <Input value={settings.gtmId} onChange={e => setSettings({...settings, gtmId: e.target.value})} placeholder="G-XXXXXXXXXX" className="rounded-xl" />
+                  </div>
+               </div>
+            </CardContent>
+         </Card>
+
+         <Button type="submit" disabled={saving} className="w-full bg-deep-green h-16 rounded-2xl font-bold text-white shadow-xl shadow-deep-green/10">
+            {saving ? 'Saving...' : 'Commit Global Settings'}
+         </Button>
       </form>
     </div>
   );
 }
 
 // --- Main Wrapper ---
+
+import { 
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Menu } from 'lucide-react';
 
 export function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -1234,28 +1433,24 @@ export function AdminDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubAuth = onAuthStateChanged(auth, (u) => {
-      if (!u || u.email !== 'techbydrissi@gmail.com') {
-        navigate('/admin/login');
-      } else {
-        setUser(u);
-      }
-    });
-
-    return () => unsubAuth();
+    const isAuthed = localStorage.getItem('isAuthed') === 'true';
+    if (!isAuthed) {
+      navigate('/admin/login');
+    } else {
+      setUser({ email: 'admin@local' });
+      setLoading(false);
+    }
   }, [navigate]);
 
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'));
-    return onSnapshot(q, (snap) => {
-      setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-      setLoading(false);
-    });
+    setMessages([
+      { id: '1', name: 'John Doe', message: 'Hello, I need help with shipping.', createdAt: { toDate: () => new Date() } }
+    ]);
   }, [user]);
 
   const handleLogout = async () => {
-    await signOut(auth);
+    localStorage.removeItem('isAuthed');
     navigate('/admin/login');
   };
 
@@ -1269,35 +1464,46 @@ export function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
       {/* Sidebar - Desktop */}
-      <Sidebar onLogout={handleLogout} email={user?.email} />
+      <div className="hidden md:block">
+        <Sidebar onLogout={handleLogout} email={user?.email} />
+      </div>
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto h-screen relative">
-         <header className="h-16 bg-white/90 border-b border-border flex items-center justify-between px-8 sticky top-0 z-40 backdrop-blur-md">
+         <header className="h-16 bg-white/90 border-b border-border flex items-center justify-between px-4 md:px-8 sticky top-0 z-40 backdrop-blur-md">
             <div className="flex items-center gap-3">
                <div className="md:hidden">
-                 {/* Mobile menu trigger could go here */}
+                  <Sheet>
+                    <SheetTrigger>
+                      <Button variant="ghost" size="icon" className="text-deep-green">
+                        <Menu className="w-6 h-6" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="p-0 border-none w-64 bg-[#1e1e1e]">
+                      <Sidebar onLogout={handleLogout} email={user?.email} />
+                    </SheetContent>
+                  </Sheet>
                </div>
                <h1 className="font-bold text-deep-green flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-gold" />
-                  Management Console
+                  <BarChart3 className="w-5 h-5 text-gold hidden sm:block" />
+                  <span className="text-sm sm:text-base">Console</span>
                </h1>
-               <Badge className="bg-gold/10 text-gold border-none font-bold text-[10px]">VER. 2.5</Badge>
+               <Badge className="bg-gold/10 text-gold border-none font-bold text-[10px] hidden xs:block">V2.5</Badge>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
                <a 
                  href="/" 
                  target="_blank" 
-                 className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), "rounded-full gap-2 border-gold/40 text-deep-green hover:bg-gold hover:text-white transition-all")}
+                 className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), "rounded-full gap-2 border-gold/40 text-deep-green hover:bg-gold hover:text-white transition-all text-[10px] sm:text-sm px-3 sm:px-4")}
                >
-                  <Globe className="w-4 h-4" /> Live Site
+                  <Globe className="w-3 h-3 sm:w-4 h-4" /> <span className="hidden xs:inline">Live Site</span>
                </a>
             </div>
          </header>
 
-         <div className="p-8 pb-20">
+         <div className="p-4 md:p-8 pb-20">
             <Routes>
                <Route index element={<Overview messages={messages} />} />
                <Route path="messages" element={<MessagesView messages={messages} />} />

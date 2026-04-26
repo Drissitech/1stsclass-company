@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { Calendar, User, ArrowLeft, Share2 } from 'lucide-react';
@@ -9,6 +7,7 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Markdown from 'react-markdown';
+import { SEO } from '@/components/ui/SEO';
 
 export function ArticleDetail() {
   const { id } = useParams();
@@ -18,17 +17,25 @@ export function ArticleDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      getDoc(doc(db, 'articles', id)).then(snap => {
-        if (snap.exists()) setArticle(snap.data());
-        setLoading(false);
+    if (id === "1") {
+      setArticle({
+        titleEn: "The Future of Maritime Logistics",
+        titleAr: "مستقبل اللوجستيات البحرية",
+        contentEn: "Digital transformation is reshaping how we handle global trade and shipping routes.",
+        contentAr: "التحول الرقمي يعيد تشكيل كيفية تعاملنا مع التجارة العالمية وخطوط الشحن.",
+        imageUrl: "https://images.unsplash.com/photo-1494412574743-019485b7593d?auto=format&fit=crop&q=80&w=800",
+        createdAt: { toDate: () => new Date() },
+        author: "Ahmed"
       });
+      setLoading(false);
+    } else {
+      setLoading(false);
     }
   }, [id]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center pt-20">
-      <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+      <div className="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -43,9 +50,18 @@ export function ArticleDetail() {
 
   const title = isRtl ? article.titleAr : article.titleEn;
   const content = isRtl ? article.contentAr : article.contentEn;
+  const htmlContent = isRtl ? article.htmlContentAr : article.htmlContentEn;
+  const seoTitle = isRtl ? article.seoTitleAr : article.seoTitleEn;
+  const seoDescription = isRtl ? article.seoDescriptionAr : article.seoDescriptionEn;
+  const seoKeywords = isRtl ? article.seoKeywordsAr : article.seoKeywordsEn;
 
   return (
     <div className="min-h-screen bg-background pt-32 pb-20">
+      <SEO 
+        title={seoTitle || title} 
+        description={seoDescription || (isRtl ? article.excerptAr : article.excerptEn)} 
+        keywords={seoKeywords} 
+      />
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <motion.div
@@ -70,7 +86,7 @@ export function ArticleDetail() {
                   <ArrowLeft className={isRtl ? "rotate-180" : ""} /> {isRtl ? 'رجوع' : 'Back'}
                 </Button>
               </Link>
-              <Badge className="bg-gold text-deep-green border-none px-4 py-1.5 rounded-full uppercase text-xs font-bold tracking-widest">
+              <Badge className="bg-secondary text-primary border-none px-4 py-1.5 rounded-full uppercase text-xs font-bold tracking-widest">
                 {isRtl ? 'أخبار' : 'News'}
               </Badge>
             </div>
@@ -78,18 +94,18 @@ export function ArticleDetail() {
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-6xl font-bold text-deep-green leading-[1.1] tracking-tighter"
+              className="text-4xl md:text-6xl font-bold text-primary leading-[1.1] tracking-tighter"
             >
               {title}
             </motion.h1>
 
             <div className="flex items-center gap-8 py-6 border-y border-border">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center font-bold text-lg text-deep-green border border-border/10">
+                <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center font-bold text-lg text-primary border border-border/10">
                   {article.author?.[0] || 'A'}
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-deep-green">{article.author || 'Admin User'}</p>
+                  <p className="text-sm font-bold text-primary">{article.author || 'Admin User'}</p>
                   <p className="text-xs text-muted-foreground uppercase tracking-widest">Article Author</p>
                 </div>
               </div>
@@ -99,7 +115,7 @@ export function ArticleDetail() {
                     <Calendar className="w-5 h-5" />
                  </div>
                  <div>
-                    <p className="text-sm font-bold text-deep-green">{article.createdAt?.toDate ? format(article.createdAt.toDate(), 'MMMM dd, yyyy') : 'Recently'}</p>
+                    <p className="text-sm font-bold text-primary">{article.createdAt?.toDate ? format(article.createdAt.toDate(), 'MMMM dd, yyyy') : 'Recently'}</p>
                     <p className="text-xs text-muted-foreground uppercase tracking-widest">Published On</p>
                  </div>
               </div>
@@ -107,16 +123,23 @@ export function ArticleDetail() {
           </header>
 
           <article className="prose prose-lg max-w-none dark:prose-invert">
-             <div className="markdown-body">
-               <Markdown>{content}</Markdown>
-             </div>
+             {article.isHtml ? (
+               <div 
+                 className="html-content" 
+                 dangerouslySetInnerHTML={{ __html: htmlContent }} 
+               />
+             ) : (
+               <div className="markdown-body">
+                 <Markdown>{content}</Markdown>
+               </div>
+             )}
           </article>
           
           <footer className="mt-20 pt-10 border-t border-border flex justify-between items-center">
              <p className="text-muted-foreground text-sm italic">
                {isRtl ? 'شكراً لقراءتك. شارك هذا المقال مع الآخرين.' : 'Thank you for reading. Feel free to share this article.'}
              </p>
-             <Button variant="outline" className="rounded-full gap-2 border-gold/40 text-gold hover:bg-gold hover:text-white">
+             <Button variant="outline" className="rounded-full gap-2 border-secondary/40 text-secondary hover:bg-secondary hover:text-white">
                 <Share2 className="w-4 h-4" /> {isRtl ? 'مشاركة' : 'Share'}
              </Button>
           </footer>

@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -21,6 +21,7 @@ import { ServicesPage } from '@/pages/Services';
 import { ProductsPage } from '@/pages/Products';
 import { ContactPage } from '@/pages/Contact';
 import { PageDetail } from '@/pages/PageDetail';
+import { MaintenancePage } from '@/pages/Maintenance';
 
 import { About } from '@/components/sections/About';
 import { Services } from '@/components/sections/Services';
@@ -59,6 +60,8 @@ function Home() {
 export default function App() {
   const { i18n } = useTranslation();
   const [phone, setPhone] = useState('+966506963669');
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
@@ -69,9 +72,17 @@ export default function App() {
     getGlobalSettings().then(data => {
       if (data) {
         setPhone(data.phone || '+966506963669');
+        setMaintenanceMode(data.maintenanceMode || false);
       }
     });
   }, []);
+
+  const isAdmin = localStorage.getItem('isAuthed') === 'true';
+  const isMaintenanceRoute = location.pathname.startsWith('/admin');
+
+  if (maintenanceMode && !isAdmin && !isMaintenanceRoute) {
+    return <MaintenancePage />;
+  }
 
   return (
     <div className="min-h-screen">

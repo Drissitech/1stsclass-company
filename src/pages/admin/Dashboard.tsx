@@ -1271,6 +1271,7 @@ function SettingsView() {
         logoUrl: '/logo.png',
         faviconUrl: '/favicon.ico',
         gtmId: '',
+        maintenanceMode: false,
         facebook: '', twitter: '', linkedin: '', instagram: '',
         seoKeywordsEn: '', seoKeywordsAr: '',
         siteDescriptionEn: '', siteDescriptionAr: ''
@@ -1307,15 +1308,11 @@ function SettingsView() {
                  <Shield className="w-5 h-5 text-gold" /> Identity & Contact
                </CardTitle>
             </CardHeader>
-            <CardContent className="p-8 space-y-8">
+            <CardContent className="p-8 space-y-6">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Company Name</Label>
-                     <Input value={settings.siteName} onChange={e => setSettings({...settings, siteName: e.target.value})} className="rounded-xl" />
-                  </div>
-                  <div className="space-y-3">
-                     <Label className="text-[10px] uppercase font-bold tracking-widest text-deep-green">Contact Email</Label>
-                     <Input value={settings.email} onChange={e => setSettings({...settings, email: e.target.value})} className="rounded-xl" />
+                  <div className="flex items-center space-x-2">
+                     <input type="checkbox" id="maintenance" checked={settings.maintenanceMode} onChange={e => setSettings({...settings, maintenanceMode: e.target.checked})} className="w-5 h-5 rounded border-gray-300 text-deep-green focus:ring-deep-green" />
+                     <Label htmlFor="maintenance" className="text-sm font-bold">Enable Maintenance Mode</Label>
                   </div>
                </div>
 

@@ -12,7 +12,9 @@ import {
   Globe,
   PlusCircle,
   Shield,
-  Box
+  Box,
+  BookOpen,
+  Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -27,11 +29,13 @@ export function Sidebar({ onLogout, email }: SidebarProps) {
     { name: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
     { name: 'Messages', icon: MessageSquare, path: '/admin/messages' },
     { name: 'Media', icon: ImageIcon, path: '/admin/media' },
+    { name: 'Blog', icon: BookOpen, path: '/admin/blog' },
     { name: 'Articles', icon: FileText, path: '/admin/articles' },
     { name: 'Services', icon: Shield, path: '/admin/services' },
     { name: 'Products', icon: Box, path: '/admin/products' },
     { name: 'Pages', icon: Files, path: '/admin/pages' },
     { name: 'Site Content', icon: Globe, path: '/admin/content' },
+    { name: 'Admins', icon: Users, path: '/admin/users' },
     { name: 'Settings', icon: SettingsIcon, path: '/admin/settings' },
   ];
 

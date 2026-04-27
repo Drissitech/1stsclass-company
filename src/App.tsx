@@ -20,6 +20,9 @@ import { AboutPage } from '@/pages/About';
 import { ServicesPage } from '@/pages/Services';
 import { ProductsPage } from '@/pages/Products';
 import { ContactPage } from '@/pages/Contact';
+import { BlogPage } from '@/pages/Blog';
+import { BlogPostPage } from '@/pages/BlogPost';
+import { GenericPage } from '@/pages/GenericPage';
 import { PageDetail } from '@/pages/PageDetail';
 import { MaintenancePage } from '@/pages/Maintenance';
 
@@ -93,9 +96,9 @@ export default function App() {
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:id" element={<ArticleDetail />} />
-        <Route path="/page/:slug" element={<PageDetail />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/p/:slug" element={<GenericPage />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/*" element={<AdminDashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />

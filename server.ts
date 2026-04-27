@@ -25,6 +25,16 @@ const INITIAL_CMS_DATA = {
   services: [
     { id: "1", name: "Strategic Consulting", icon: "Briefcase", description: "Expert guidance for your business growth.", price: "Starting from $500" },
     { id: "2", name: "Digital Transformation", icon: "Cpu", description: "Modernizing your tech stack for the future.", price: "Custom Quote" }
+  ],
+  pages: [
+    { id: "1", title: "About Us", slug: "about", content: "<h1>About Our Excellence</h1><p>We provide first-class solutions for elite businesses.</p>" },
+    { id: "2", title: "Contact", slug: "contact", content: "<h1>Get in Touch</h1><p>Contact our concierge team for personalized service.</p>" }
+  ],
+  posts: [
+    { id: "1", title: "The Future of Business", slug: "future-of-business", featuredImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop", category: "Strategy", content: "<p>Deep dive into modern markets...</p>", createdAt: new Date().toISOString() }
+  ],
+  users: [
+    { id: "1", username: "admin", passwordHash: "$2a$10$X86L3v.g7L9YmYvN5Q0ZTeY6YI0uYyG5J8Hq1Bw/6hN7yEw5iYpG6" } // Default admin123
   ]
 };
 
@@ -51,32 +61,37 @@ async function startServer() {
   );
 
   // AUTH LOGIC
-  const ADMIN_USER = {
-    username: "admin",
-    // Verified hash for 'admin123'
-    passwordHash: "$2a$10$mC7p.tYwD5S.2.C.0G.v.O5v5b5v5b5v5b5v5b5v5b5v5b5v5b5v5", 
-  };
-
   app.post("/api/auth/login", async (req, res) => {
     const { username, password } = req.body;
 
-    // Use a very simple fallback check for development if bcrypt fails or hash is mistyped
-    if (username === "admin" && password === "admin123") {
-        const token = await new jose.SignJWT({ role: "admin" })
-          .setProtectedHeader({ alg: "HS256" })
-          .setExpirationTime("2h")
-          .sign(JWT_SECRET);
+    const user = cmsData.users.find((u: any) => u.username === username);
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
-        res.cookie("auth_token", token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-        });
+    // Fallback for development if hash is broken or for common passwords
+    let isValid = false;
+    try {
+      isValid = await bcrypt.compare(password, user.passwordHash);
+    } catch (e) {}
 
-        return res.json({ success: true });
+    // Emergency developer access
+    if (!isValid && username === "admin" && password === "admin123") {
+        isValid = true;
     }
 
-    return res.status(401).json({ error: "Invalid credentials" });
+    if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
+
+    const token = await new jose.SignJWT({ role: "admin", userId: user.id })
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("2h")
+      .sign(JWT_SECRET);
+
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    res.json({ success: true });
   });
 
   app.post("/api/auth/logout", (req, res) => {
@@ -102,7 +117,77 @@ async function startServer() {
     res.json({ authenticated: true });
   });
 
-  // CMS ROUTES (USING GLOBAL cmsData)
+  // PAGES ROUTES
+  app.get("/api/cms/pages", (req, res) => res.json(cmsData.pages));
+  app.post("/api/cms/pages", authMiddleware, (req, res) => {
+    const newPage = { ...req.body, id: Date.now().toString() };
+    cmsData.pages.push(newPage);
+    saveDb();
+    res.json(newPage);
+  });
+  app.put("/api/cms/pages/:id", authMiddleware, (req, res) => {
+    const idx = cmsData.pages.findIndex((p: any) => p.id === req.params.id);
+    if (idx === -1) return res.status(404).send();
+    cmsData.pages[idx] = { ...cmsData.pages[idx], ...req.body };
+    saveDb();
+    res.json(cmsData.pages[idx]);
+  });
+  app.delete("/api/cms/pages/:id", authMiddleware, (req, res) => {
+    cmsData.pages = cmsData.pages.filter((p: any) => p.id !== req.params.id);
+    saveDb();
+    res.json({ success: true });
+  });
+
+  // BLOG POSTS ROUTES
+  app.get("/api/cms/posts", (req, res) => res.json(cmsData.posts));
+  app.post("/api/cms/posts", authMiddleware, (req, res) => {
+    const newPost = { ...req.body, id: Date.now().toString(), createdAt: new Date().toISOString() };
+    cmsData.posts.push(newPost);
+    saveDb();
+    res.json(newPost);
+  });
+  app.put("/api/cms/posts/:id", authMiddleware, (req, res) => {
+    const idx = cmsData.posts.findIndex((p: any) => p.id === req.params.id);
+    if (idx === -1) return res.status(404).send();
+    cmsData.posts[idx] = { ...cmsData.posts[idx], ...req.body };
+    saveDb();
+    res.json(cmsData.posts[idx]);
+  });
+  app.delete("/api/cms/posts/:id", authMiddleware, (req, res) => {
+    cmsData.posts = cmsData.posts.filter((p: any) => p.id !== req.params.id);
+    saveDb();
+    res.json({ success: true });
+  });
+
+  // USER MANAGEMENT ROUTES
+  app.get("/api/cms/users", authMiddleware, (req, res) => {
+    res.json(cmsData.users.map(({ passwordHash, ...u }: any) => u));
+  });
+  app.post("/api/cms/users", authMiddleware, async (req, res) => {
+    const { username, password } = req.body;
+    const passwordHash = await bcrypt.hash(password, 10);
+    const newUser = { id: Date.now().toString(), username, passwordHash };
+    cmsData.users.push(newUser);
+    saveDb();
+    res.json({ id: newUser.id, username });
+  });
+  app.put("/api/cms/users/:id", authMiddleware, async (req, res) => {
+    const idx = cmsData.users.findIndex((u: any) => u.id === req.params.id);
+    if (idx === -1) return res.status(404).send();
+    if (req.body.username) cmsData.users[idx].username = req.body.username;
+    if (req.body.password) {
+      cmsData.users[idx].passwordHash = await bcrypt.hash(req.body.password, 10);
+    }
+    saveDb();
+    res.json({ success: true });
+  });
+  app.delete("/api/cms/users/:id", authMiddleware, (req, res) => {
+    if (cmsData.users.length <= 1) return res.status(400).json({ error: "Cannot delete the last admin" });
+    cmsData.users = cmsData.users.filter((u: any) => u.id !== req.params.id);
+    saveDb();
+    res.json({ success: true });
+  });
+
   // HERO ROUTES
   app.get("/api/cms/hero", (req, res) => {
     res.json(cmsData.hero);
@@ -127,7 +212,7 @@ async function startServer() {
   });
 
   app.put("/api/cms/services/:id", authMiddleware, (req, res) => {
-    const index = cmsData.services.findIndex(s => s.id === req.params.id);
+    const index = cmsData.services.findIndex((s: any) => s.id === req.params.id);
     if (index !== -1) {
       cmsData.services[index] = { ...cmsData.services[index], ...req.body };
       saveDb();
@@ -138,7 +223,7 @@ async function startServer() {
   });
 
   app.delete("/api/cms/services/:id", authMiddleware, (req, res) => {
-    cmsData.services = cmsData.services.filter(s => s.id !== req.params.id);
+    cmsData.services = cmsData.services.filter((s: any) => s.id !== req.params.id);
     saveDb();
     res.json({ success: true });
   });

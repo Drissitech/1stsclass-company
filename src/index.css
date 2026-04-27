@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Almarai:wght@300;400;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -6,8 +6,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: "Almarai", sans-serif;
-    --font-sans: "Almarai", sans-serif;
+    --font-sans: "Inter", "Almarai", sans-serif;
+    --font-heading: "Inter", "Almarai", sans-serif;
     
     --color-primary: var(--primary);
     --color-primary-foreground: var(--primary-foreground);
@@ -31,17 +31,45 @@
     --color-gold: #C0822F;
     --color-navy: #151543;
     --color-deep-green: #151543;
+}
 
-    /* Fluid Typography Scale */
-    --text-xs: clamp(0.7rem, 0.65rem + 0.25vw, 0.8rem);
-    --text-sm: clamp(0.8rem, 0.75rem + 0.3vw, 0.95rem);
-    --text-base: clamp(0.95rem, 0.9rem + 0.4vw, 1.1rem);
-    --text-lg: clamp(1.1rem, 1.05rem + 0.5vw, 1.25rem);
-    --text-xl: clamp(1.25rem, 1.15rem + 0.6vw, 1.5rem);
-    --text-2xl: clamp(1.5rem, 1.4rem + 0.8vw, 1.85rem);
-    --text-3xl: clamp(1.85rem, 1.7rem + 1vw, 2.25rem);
-    --text-4xl: clamp(2.25rem, 2rem + 1.5vw, 3.25rem);
-    --text-5xl: clamp(3rem, 2.5rem + 2.5vw, 5rem);
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: clamp(0.95rem, 0.9rem + 0.4vw, 1.15rem);
+  }
+
+  h1 {
+    font-size: clamp(2.25rem, 3vw + 1rem, 4.5rem);
+    @apply font-bold tracking-tight leading-[1.1];
+  }
+
+  h2 {
+    font-size: clamp(1.85rem, 2vw + 1rem, 3rem);
+    @apply font-bold tracking-tight leading-tight;
+  }
+
+  h3 {
+    font-size: clamp(1.5rem, 1.5vw + 1rem, 2.25rem);
+    @apply font-semibold;
+  }
+
+  p {
+    font-size: clamp(1rem, 0.5vw + 0.9rem, 1.2rem);
+    @apply text-muted-foreground;
+  }
+}
+
+@layer components {
+  .quill-editor .ql-container {
+    @apply min-h-[300px] text-lg font-sans;
+  }
+  .quill-editor .ql-editor { @apply px-6 py-4; }
 }
 
 :root {
@@ -51,9 +79,9 @@
     --card-foreground: #151543;
     --popover: #FFFFFF;
     --popover-foreground: #151543;
-    --primary: #151543; /* Deep Navy from image */
+    --primary: #151543;
     --primary-foreground: #FFFFFF;
-    --secondary: #C0822F; /* Gold/Bronze from image */
+    --secondary: #C0822F;
     --secondary-foreground: #FFFFFF;
     --muted: #F3F4F6;
     --muted-foreground: #6B7280;
@@ -71,7 +99,7 @@
     --foreground: #F9FAFB;
     --card: #151543;
     --card-foreground: #F9FAFB;
-    --primary: #C0822F; /* Flip in dark mode for better contrast */
+    --primary: #C0822F;
     --primary-foreground: #151543;
 }
 
@@ -79,12 +107,8 @@
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground antialiased;
-  }
 }
 
-/* RTL Support */
 [dir="rtl"] {
   /* Almarai is already set as default */
 }

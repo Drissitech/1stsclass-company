@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Routes, Route, Link } from 'react-router-dom';
 import { Sidebar } from '@/components/layout/AdminSidebar';
+import { BlogManager, PageManager, UserManager } from '@/components/admin/CmsModules';
+import { BookOpen, UserPlus, Layout } from 'lucide-react';
 
 // Mock Firestore for no-API mode - Using localStorage for simulation
 const MOCK_STORAGE_KEYS: Record<string, string> = {
@@ -1593,7 +1595,9 @@ export function AdminDashboard() {
                <Route path="products/new" element={<ProductEditor mode="create" />} />
                <Route path="products/edit/:id" element={<ProductEditor mode="edit" />} />
                
-               <Route path="pages" element={<PagesView />} />
+               <Route path="pages" element={<PageManager />} />
+                <Route path="blog" element={<BlogManager />} />
+                <Route path="users" element={<UserManager />} />
                <Route path="pages/new" element={<PageEditor mode="create" />} />
                <Route path="pages/edit/:id" element={<PageEditor mode="edit" />} />
                

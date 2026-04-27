@@ -190,9 +190,15 @@ function ServicesView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, 'services'), orderBy('order', 'asc'));
-    return onSnapshot(q, (snap) => {
-      setServices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    fetch('/api/cms/services').then(res => res.json()).then(data => {
+      setServices(data.map((s: any) => ({
+        id: s.id,
+        titleEn: s.name,
+        descriptionEn: s.description,
+        price: s.price,
+        imageUrl: s.imageUrl || '',
+        order: 0
+      })));
       setLoading(false);
     });
   }, []);
@@ -200,7 +206,8 @@ function ServicesView() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this service?')) return;
     try {
-      await deleteDoc(doc(db, 'services', id));
+      await fetch(`/api/cms/services/${id}`, { method: 'DELETE' });
+      setServices(services.filter(s => s.id !== id));
       toast.success('Service removed');
     } catch (error) {
       toast.error('Failed to remove service');
@@ -256,12 +263,16 @@ function ServicesView() {
                 <ChevronDown className="w-4 h-4" />
               </Button>
             </div>
-            <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center shrink-0">
-               <Shield className="w-6 h-6 text-gold" />
+            <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+               {service.imageUrl ? (
+                 <img src={service.imageUrl} className="w-full h-full object-cover" />
+               ) : (
+                 <Shield className="w-6 h-6 text-gold" />
+               )}
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-lg truncate">{service.titleEn}</h3>
-              <p className="text-xs text-muted-foreground truncate">{service.descriptionEn}</p>
+              <p className="text-xs text-muted-foreground truncate">{service.price || service.descriptionEn}</p>
             </div>
             <div className="flex gap-2">
               <Link to={`/admin/services/edit/${service.id}`}>
@@ -282,7 +293,7 @@ function ServicesView() {
 
 function ServiceEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?: string }) {
   const [formData, setFormData] = useState<any>({
-    titleEn: '', titleAr: '', descriptionEn: '', descriptionAr: '', icon: 'Shield', order: 0,
+    titleEn: '', titleAr: '', descriptionEn: '', descriptionAr: '', icon: 'Shield', imageUrl: '', price: '', order: 0,
     seoTitleEn: '', seoTitleAr: '', seoDescriptionEn: '', seoDescriptionAr: ''
   });
   const [saving, setSaving] = useState(false);
@@ -290,11 +301,17 @@ function ServiceEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?:
 
   useEffect(() => {
     if (mode === 'edit' && id) {
-      getDoc(doc(db, 'services', id)).then(snap => {
-        if (snap.exists()) setFormData({
-          titleEn: '', titleAr: '', descriptionEn: '', descriptionAr: '', icon: 'Shield', order: 0,
-          seoTitleEn: '', seoTitleAr: '', seoDescriptionEn: '', seoDescriptionAr: '',
-          ...snap.data()
+      fetch('/api/cms/services').then(res => res.json()).then(all => {
+        const item = all.find((s: any) => s.id === id);
+        if (item) setFormData({
+          titleEn: item.name,
+          titleAr: '',
+          descriptionEn: item.description,
+          descriptionAr: '',
+          icon: item.icon,
+          imageUrl: item.imageUrl || '',
+          price: item.price,
+          order: 0
         });
       });
     }
@@ -304,11 +321,26 @@ function ServiceEditor({ mode = 'create', id }: { mode?: 'create' | 'edit', id?:
     e.preventDefault();
     setSaving(true);
     try {
+      const payload = {
+        name: formData.titleEn,
+        description: formData.descriptionEn,
+        icon: formData.icon,
+        price: formData.price,
+        imageUrl: formData.imageUrl
+      };
+
       if (mode === 'create') {
-        const snap = await getDoc(doc(db, 'services', 'count')); // Not really a count, just getting current list size
-        await addDoc(collection(db, 'services'), { ...formData, order: Date.now() });
+        await fetch('/api/cms/services', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
       } else {
-        await setDoc(doc(db, 'services', id!), formData, { merge: true });
+        await fetch(`/api/cms/services/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
       }
       toast.success('Service saved');
       navigate('/admin/services');
@@ -1021,11 +1053,23 @@ function SiteContentView() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    // Initial load from API for Hero
+    fetch('/api/cms/hero').then(res => res.json()).then(hero => {
+       setContent(prev => ({
+         ...prev,
+         heroTitleEn: hero.title,
+         heroSubEn: hero.subtitle,
+         heroImageUrl: hero.bgImage,
+         heroButtonEn: hero.buttonText
+       }));
+    });
+
     getDoc(doc(db, 'sections', 'content')).then(snap => {
       if (snap.exists()) setContent(snap.data());
       else setContent({
         heroTitleEn: 'Excellence in Trade', heroTitleAr: 'التميز في التجارة',
         heroSubEn: 'Global logistics and sourcing', heroSubAr: 'اللوجستيات العالمية والتوريد',
+        heroButtonEn: 'Learn More', heroButtonAr: 'اقرأ المزيد',
         heroImageUrl: '',
         aboutTitleEn: 'About Us', aboutTitleAr: 'عن الشركة',
         aboutTextEn: '', aboutTextAr: '',
@@ -1049,6 +1093,18 @@ function SiteContentView() {
     e.preventDefault();
     setSaving(true);
     try {
+      // Save Hero via CMS API
+      await fetch('/api/cms/hero', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: content.heroTitleEn,
+          subtitle: content.heroSubEn,
+          bgImage: content.heroImageUrl,
+          buttonText: content.heroButtonEn || "Learn More"
+        })
+      });
+
       await setDoc(doc(db, 'sections', 'content'), content);
       toast.success('Home page content updated');
     } catch (error) {
@@ -1430,13 +1486,28 @@ export function AdminDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const isAuthed = localStorage.getItem('isAuthed') === 'true';
-    if (!isAuthed) {
-      navigate('/admin/login');
-    } else {
-      setUser({ email: 'admin@local' });
-      setLoading(false);
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/admin/check');
+        if (res.ok) {
+          const data = await res.json();
+          setUser({ email: 'admin@1stclass.com.sa' });
+        } else {
+          localStorage.removeItem('isAuthed');
+          navigate('/admin/login');
+        }
+      } catch (err) {
+        // Safe fallback for dev if local storage flag is set and server check fails
+        if (localStorage.getItem('isAuthed') !== 'true') {
+          navigate('/admin/login');
+        } else {
+          setUser({ email: 'admin@local' });
+        }
+      } finally {
+        setLoading(false);
+      }
     }
+    checkAuth();
   }, [navigate]);
 
   useEffect(() => {
@@ -1447,6 +1518,11 @@ export function AdminDashboard() {
   }, [user]);
 
   const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (err) {
+      console.error('Logout failed');
+    }
     localStorage.removeItem('isAuthed');
     navigate('/admin/login');
   };

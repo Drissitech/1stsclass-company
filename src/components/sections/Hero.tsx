@@ -26,7 +26,8 @@ export function Hero() {
       {/* Dynamic Background Image */}
       {bgImage && (
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-primary/80 mix-blend-multiply z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-transparent z-10" />
+          <div className="absolute inset-0 bg-primary/40 z-10" />
           <img src={bgImage} className="w-full h-full object-cover" alt="Hero background" />
         </div>
       )}

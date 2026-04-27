@@ -51,14 +51,11 @@ export function Navbar() {
           <img 
             src={logoUrl} 
             alt="Logo" 
-            className="h-12 w-auto group-hover:scale-105 transition-transform"
+            className="h-14 w-auto group-hover:scale-105 transition-transform"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://placehold.co/100x100/00482B/D4AF37?text=1st+Class';
+              (e.target as HTMLImageElement).src = 'https://placehold.co/120x120/151543/C0822F?text=1st+Class';
             }}
           />
-          <div className="flex flex-col">
-            <span className="font-bold text-lg leading-tight tracking-tight text-primary uppercase">1st Class Co.</span>
-          </div>
         </Link>
 
         {/* Desktop Nav */}

@@ -78,7 +78,23 @@ function getFromStorage(key: string, defaultValue: any) {
 }
 
 export async function getSiteContent() {
-  return getFromStorage('site_content', DEFAULT_CONTENT);
+  try {
+    const res = await fetch('/api/cms/hero');
+    if (res.ok) {
+      const hero = await res.json();
+      // Map server model to local component expected model
+      return {
+        ...DEFAULT_CONTENT,
+        heroTitleEn: hero.title,
+        heroSubEn: hero.subtitle,
+        heroImageUrl: hero.bgImage,
+        heroButtonEn: hero.buttonText
+      };
+    }
+  } catch (e) {
+    console.warn('Using default content');
+  }
+  return DEFAULT_CONTENT;
 }
 
 export async function getGlobalSettings() {
@@ -86,7 +102,21 @@ export async function getGlobalSettings() {
 }
 
 export async function getServices() {
-  return getFromStorage('site_services', DEFAULT_SERVICES);
+  try {
+    const res = await fetch('/api/cms/services');
+    if (res.ok) {
+      const services = await res.json();
+      return services.map((s: any) => ({
+        id: s.id,
+        titleEn: s.name,
+        descriptionEn: s.description,
+        price: s.price,
+        icon: s.icon,
+        order: 0
+      }));
+    }
+  } catch (e) {}
+  return DEFAULT_SERVICES;
 }
 
 export async function getProducts() {

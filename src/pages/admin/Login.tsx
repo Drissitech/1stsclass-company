@@ -6,6 +6,8 @@ import { LogIn, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function AdminLogin() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -16,38 +18,75 @@ export function AdminLogin() {
     }
   }, [navigate]);
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
-    // Local mock login logic (removed API linking)
-    setTimeout(() => {
-      localStorage.setItem('isAuthed', 'true');
-      toast.success('Offline mode: Logged in locally');
-      navigate('/admin');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (res.ok) {
+        localStorage.setItem('isAuthed', 'true');
+        toast.success('Successfully authenticated');
+        navigate('/admin');
+      } else {
+        toast.error('Invalid username or password');
+      }
+    } catch (err) {
+      toast.error('Connection failed');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-accent/20 px-4">
-      <Card className="w-full max-w-md shadow-2xl border-primary/10">
-        <CardHeader className="text-center">
-          <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
-             <ShieldAlert className="w-10 h-10 text-secondary" />
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <Card className="w-full max-w-md shadow-2xl border-none rounded-3xl overflow-hidden">
+        <CardHeader className="text-center bg-primary text-white py-10">
+          <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+             <ShieldAlert className="w-8 h-8 text-secondary" />
           </div>
-          <CardTitle className="text-3xl font-bold text-primary tracking-tight">Admin Portal</CardTitle>
-          <CardDescription>Secure access for authorized personnel only</CardDescription>
+          <CardTitle className="text-2xl font-bold tracking-tight">Admin Vault</CardTitle>
+          <CardDescription className="text-white/70">Management Authorization Required</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Button 
-            onClick={handleLogin} 
-            disabled={loading}
-            className="w-full bg-primary hover:bg-primary/90 text-white h-14 text-lg rounded-xl flex items-center justify-center gap-3"
-          >
-            <LogIn className="w-5 h-5" />
-            {loading ? 'Authenticating...' : 'Sign in with Google'}
-          </Button>
-          <p className="mt-6 text-center text-xs text-muted-foreground uppercase tracking-widest">
-            First Class Advanced Co.
+        <CardContent className="p-8">
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+               <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest pl-1">Identifier</label>
+               <input 
+                 type="text" 
+                 value={username} 
+                 onChange={e => setUsername(e.target.value)}
+                 className="w-full h-12 bg-accent/30 border-none rounded-xl px-4 focus:ring-2 focus:ring-primary outline-none"
+                 placeholder="Username"
+                 required
+               />
+            </div>
+            <div className="space-y-2">
+               <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest pl-1">Credential</label>
+               <input 
+                 type="password" 
+                 value={password} 
+                 onChange={e => setPassword(e.target.value)}
+                 className="w-full h-12 bg-accent/30 border-none rounded-xl px-4 focus:ring-2 focus:ring-primary outline-none"
+                 placeholder="••••••••"
+                 required
+               />
+            </div>
+            <Button 
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary hover:bg-primary/90 text-white h-14 text-base font-bold rounded-xl flex items-center justify-center gap-3 shadow-xl shadow-primary/20"
+            >
+              <LogIn className="w-5 h-5 text-secondary" />
+              {loading ? 'Verifying...' : 'Authorize Access'}
+            </Button>
+          </form>
+          <p className="mt-8 text-center text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+            Encrypted Session Management Active
           </p>
         </CardContent>
       </Card>

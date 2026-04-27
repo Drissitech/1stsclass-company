@@ -14,6 +14,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [content, setContent] = useState<any>(null);
   const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -40,26 +41,26 @@ export function Navbar() {
   return (
     <nav
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b',
-        scrolled 
-          ? 'bg-background/80 backdrop-blur-md py-2 border-border' 
-          : 'bg-transparent py-4 border-transparent'
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        (scrolled || !isHomePage) 
+          ? 'bg-white py-2 shadow-xl border-b border-border/50' 
+          : 'bg-transparent py-4'
       )}
     >
-      <div className="container mx-auto px-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 group">
+      <div className="container mx-auto px-4 flex items-center">
+        <Link to="/" className="flex items-center group shrink-0">
           <img 
             src={logoUrl} 
-            alt="Logo" 
-            className="h-14 w-auto group-hover:scale-105 transition-transform"
+            alt="1st Class Advanced Co" 
+            className="h-10 md:h-14 w-auto group-hover:scale-105 transition-all duration-500 rounded-full object-contain filter drop-shadow-md"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://placehold.co/120x120/151543/C0822F?text=1st+Class';
+              (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=1st+Class&background=151543&color=C0822F&bold=true&rounded=true';
             }}
           />
         </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8">
+        {/* Desktop Nav - Centered */}
+        <div className="hidden md:flex items-center justify-center flex-1 px-8">
           <div className="flex items-center gap-6">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
@@ -68,31 +69,44 @@ export function Navbar() {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "text-sm font-medium hover:text-secondary transition-colors relative group",
-                    isActive ? "text-secondary" : "text-foreground"
+                    "text-[12px] font-bold transition-all relative group uppercase tracking-[0.1em]",
+                    isActive 
+                      ? "text-secondary" 
+                      : ((scrolled || !isHomePage) ? "text-primary" : "text-white"),
+                    "hover:text-secondary"
                   )}
                 >
                   {item.name}
-                  <span className={cn("absolute -bottom-1 left-0 h-0.5 bg-secondary transition-all group-hover:w-full", isActive ? "w-full" : "w-0")} />
+                  <span className={cn(
+                    "absolute -bottom-1 left-0 h-0.5 bg-secondary transition-all duration-300",
+                    isActive ? "w-full" : "w-0 group-hover:w-full"
+                  )} />
                 </Link>
               );
             })}
           </div>
-          <div className="h-6 w-px bg-border mx-2" />
-          <LanguageToggle />
-          <Button asChild className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20">
+        </div>
+
+        {/* Desktop Actions - Right */}
+        <div className="hidden md:flex items-center gap-4 shrink-0">
+          <div className={cn("h-6 w-px mx-2 transition-colors", (scrolled || !isHomePage) ? "bg-border" : "bg-white/20")} />
+          <LanguageToggle scrolled={scrolled || !isHomePage} />
+          <Button asChild className="bg-secondary hover:bg-primary text-white border-none shadow-lg shadow-secondary/10 transition-all duration-300 font-bold px-6 h-10 text-[10px] uppercase tracking-widest rounded-full">
             <Link to="/contact">{t('hero.ctaRequest')}</Link>
           </Button>
         </div>
 
         {/* Mobile Toggle */}
-        <div className="md:hidden flex items-center gap-4">
-          <LanguageToggle />
+        <div className="md:hidden flex items-center gap-4 ml-auto">
+          <LanguageToggle scrolled={scrolled || !isHomePage} />
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-foreground p-2 hover:bg-accent rounded-full transition-colors"
+            className={cn(
+              "p-2 hover:bg-accent/10 rounded-full transition-colors",
+              (scrolled || !isHomePage) ? "text-primary" : "text-white"
+            )}
           >
-            {isOpen ? <X /> : <Menu />}
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
@@ -115,8 +129,8 @@ export function Navbar() {
                     to={item.path}
                     onClick={() => setIsOpen(false)}
                     className={cn(
-                      "text-lg font-medium p-2 hover:bg-accent rounded-md transition-colors",
-                      isActive ? "text-secondary bg-accent/50" : ""
+                      "text-xl font-bold p-3 hover:bg-secondary/10 rounded-xl transition-all flex items-center justify-center",
+                      isActive ? "text-secondary bg-secondary/5" : "text-secondary"
                     )}
                   >
                     {item.name}

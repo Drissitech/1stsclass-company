@@ -46,7 +46,7 @@ export function AboutPage() {
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-bold mb-6 tracking-tighter"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold mb-8 tracking-tighter"
           >
             {title}
           </motion.h1>
@@ -54,13 +54,13 @@ export function AboutPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="w-24 h-1.5 bg-secondary mx-auto mb-8 rounded-full"
+            className="w-32 h-2 bg-secondary mx-auto mb-10 rounded-full"
           />
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-xl text-white/80 max-w-2xl mx-auto font-medium"
+            className="text-lg md:text-xl lg:text-2xl text-white/80 max-w-3xl mx-auto font-medium"
           >
             {isRtl 
               ? 'نحن شريكك الاستراتيجي في سلاسل الإمداد العالمية، ملتزمون بالتميز والابتكار.' 
@@ -98,14 +98,14 @@ export function AboutPage() {
             </motion.div>
 
             <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 text-secondary font-bold text-sm tracking-widest uppercase">
-                 <Briefcase className="w-4 h-4" />
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-secondary/10 text-secondary font-bold text-base tracking-widest uppercase mb-4">
+                 <Briefcase className="w-5 h-5" />
                  {isRtl ? 'قصتنا' : 'Our Story'}
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary tracking-tight leading-tight">
                  {isRtl ? 'ريادة في إدارة المشتريات وسلاسل الإمداد' : 'Leadership in Procurement & Supply Chain'}
               </h2>
-              <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
+              <div className="space-y-8 text-lg md:text-xl text-muted-foreground leading-relaxed">
                 <p className="whitespace-pre-wrap">
                   {description || t('about.description')}
                 </p>
@@ -145,8 +145,8 @@ export function AboutPage() {
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700" />
               <Target className="w-16 h-16 text-secondary mb-8" />
-              <h3 className="text-3xl font-bold mb-6">{t('about.vision')}</h3>
-              <p className="text-xl text-white/70 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-6">{t('about.vision')}</h3>
+              <p className="text-lg text-white/70 leading-relaxed">
                 {vision}
               </p>
             </motion.div>
@@ -159,20 +159,20 @@ export function AboutPage() {
               className="p-12 bg-background border-2 border-primary/10 rounded-[3rem] relative overflow-hidden group"
             >
               <Zap className="w-16 h-16 text-secondary mb-8" />
-              <h3 className="text-3xl font-bold text-primary mb-6">{t('about.mission')}</h3>
-              <p className="text-xl text-muted-foreground leading-relaxed">
+              <h3 className="text-2xl font-bold text-primary mb-6">{t('about.mission')}</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed">
                 {mission}
               </p>
             </motion.div>
           </div>
 
           {/* Core Values Section */}
-          <div className="text-center mb-16">
-             <h2 className="text-4xl font-bold text-primary mb-4">{isRtl ? 'قيمنا الجوهرية' : 'Our Core Values'}</h2>
-             <div className="w-20 h-1 bg-secondary mx-auto rounded-full" />
+          <div className="text-center mb-20">
+             <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">{isRtl ? 'قيمنا الجوهرية' : 'Our Core Values'}</h2>
+             <div className="w-24 h-2 bg-secondary mx-auto rounded-full" />
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10">
             {values.map((value, index) => {
               const Icon = value.icon;
               return (
@@ -182,14 +182,14 @@ export function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex flex-col items-center gap-4 text-center group"
+                  className="flex flex-col items-center gap-6 text-center group"
                 >
-                  <div className="w-20 h-20 rounded-[2rem] bg-white border border-border shadow-xl shadow-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white group-hover:-translate-y-2 transition-all duration-300">
-                    <Icon className="h-10 w-10" />
+                  <div className="w-24 h-24 rounded-[2.5rem] bg-white border border-border shadow-2xl shadow-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white group-hover:-translate-y-3 transition-all duration-500">
+                    <Icon className="h-12 w-12" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-primary mb-1">{t(`about.values.${value.key}`)}</h4>
-                    <div className="w-8 h-0.5 bg-secondary/30 mx-auto" />
+                    <h4 className="font-bold text-xl text-primary mb-2 transition-colors group-hover:text-secondary">{t(`about.values.${value.key}`)}</h4>
+                    <div className="w-10 h-0.5 bg-secondary/30 mx-auto" />
                   </div>
                 </motion.div>
               );
@@ -199,21 +199,21 @@ export function AboutPage() {
       </section>
 
       {/* Stats/Achievements Section */}
-      <section className="py-24 bg-accent/20">
+      <section className="py-32 bg-accent/20">
          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16">
                {[
                  { label: isRtl ? 'عملاء راضون' : 'Happy Clients', value: '500+', icon: Users },
                  { label: isRtl ? 'مشاريع مكتملة' : 'Projects Done', value: '1,200+', icon: Briefcase },
                  { label: isRtl ? 'جوائز التميز' : 'Excellence Awards', value: '25+', icon: Award },
                  { label: isRtl ? 'فريق خبير' : 'Expert Team', value: '45+', icon: Globe2 },
                ].map((item, i) => (
-                 <div key={i} className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-white rounded-2xl shadow-xl flex items-center justify-center mb-6">
-                       <item.icon className="w-8 h-8 text-secondary" />
+                 <div key={i} className="flex flex-col items-center text-center group">
+                    <div className="w-20 h-20 bg-white rounded-3xl shadow-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
+                       <item.icon className="w-10 h-10 text-secondary" />
                     </div>
-                    <div className="text-4xl font-bold text-primary mb-2">{item.value}</div>
-                    <div className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{item.label}</div>
+                    <div className="text-6xl font-black text-primary mb-3 tracking-tighter group-hover:text-secondary transition-colors">{item.value}</div>
+                    <div className="text-base font-bold text-muted-foreground uppercase tracking-[0.2em] group-hover:text-primary transition-colors">{item.label}</div>
                  </div>
                ))}
             </div>

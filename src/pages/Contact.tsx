@@ -58,26 +58,27 @@ export function ContactPage() {
       />
       
       {/* Hero Section */}
-      <section className="bg-primary py-24 text-white relative overflow-hidden">
+      <section className="bg-primary py-32 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
         <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-6xl font-bold mb-6 tracking-tighter"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-4xl md:text-6xl lg:text-7xl font-black mb-10 tracking-tighter"
           >
             {isRtl ? 'تواصل معنا' : 'Contact Us'}
           </motion.h1>
           <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-white/70 max-w-2xl mx-auto"
+            className="text-lg md:text-xl lg:text-2xl text-white/70 max-w-4xl mx-auto leading-relaxed font-medium"
           >
             {isRtl 
               ? 'نحن هنا للإجابة على استفساراتكم ومساعدتكم في تنمية أعمالكم.' 
               : 'We are here to answer your inquiries and help you grow your business.'}
           </motion.p>
+          <div className="w-40 h-2.5 bg-secondary mx-auto mt-12 rounded-full" />
         </div>
       </section>
 

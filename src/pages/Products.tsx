@@ -39,16 +39,16 @@ export function ProductsPage() {
     <div className="pt-24 min-h-screen bg-background">
       <SEO title={seoTitle || title} description={description} />
       {/* Products Header */}
-      <section className="bg-primary text-white py-24 relative overflow-hidden">
+      <section className="bg-primary text-white py-32 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
            <div className="absolute -top-24 -left-24 w-96 h-96 border-[40px] border-white rounded-full opacity-20" />
            <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-secondary/40 via-transparent to-transparent" />
         </div>
         <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-block px-4 py-1.5 rounded-full bg-secondary text-white text-xs font-bold uppercase tracking-[0.2em] mb-6"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="inline-block px-8 py-3 rounded-full bg-secondary text-white text-sm font-bold uppercase tracking-[0.4em] mb-10 shadow-2xl"
           >
             {isRtl ? 'كتالوج المنتجات' : 'Products Catalog'}
           </motion.div>
@@ -56,7 +56,7 @@ export function ProductsPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter"
+            className="text-4xl md:text-6xl font-black mb-10 tracking-tighter"
           >
             {title}
           </motion.h1>
@@ -64,10 +64,11 @@ export function ProductsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed"
+            className="text-lg md:text-2xl text-white/80 max-w-5xl mx-auto leading-tight font-medium"
           >
             {description}
           </motion.p>
+          <div className="w-32 h-2 bg-white/20 mx-auto mt-12 rounded-full" />
         </div>
       </section>
 
@@ -127,7 +128,7 @@ export function ProductsPage() {
                       </div>
                       
                       <div className="p-8 flex flex-col flex-1">
-                         <h3 className="text-2xl font-bold text-primary mb-4 tracking-tight group-hover:text-secondary transition-colors">
+                         <h3 className="text-xl md:text-2xl font-bold text-primary mb-4 tracking-tight group-hover:text-secondary transition-colors">
                            {isRtl ? product.nameAr : product.nameEn}
                          </h3>
                          <p className="text-muted-foreground text-sm leading-relaxed mb-8 line-clamp-3">
@@ -194,7 +195,7 @@ export function ProductsPage() {
                     <div className="w-16 h-16 bg-white rounded-2xl shadow-xl flex items-center justify-center mb-8">
                        <item.icon className="w-8 h-8 text-secondary" />
                     </div>
-                    <h4 className="text-2xl font-bold text-primary mb-4 tracking-tight">{item.title}</h4>
+                    <h4 className="text-xl md:text-2xl font-bold text-primary mb-4 tracking-tight">{item.title}</h4>
                     <p className="text-muted-foreground leading-relaxed">
                        {item.desc}
                     </p>

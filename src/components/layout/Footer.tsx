@@ -24,21 +24,21 @@ export function Footer() {
     : (settings?.addressEn || 'Riyadh, Saudi Arabia');
 
   return (
-    <footer className="bg-primary text-white py-16">
+    <footer className="bg-primary text-white py-12">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
-          <div className="space-y-6">
-            <img src={logoUrl} alt="Logo" className="h-16 w-auto brightness-0 invert" />
-            <p className="text-white/60 text-sm leading-relaxed max-w-xs whitespace-pre-wrap">
+          <div className="space-y-4">
+            <img src={logoUrl} alt="Logo" className="h-10 md:h-12 w-auto object-contain rounded-full" />
+            <p className="text-white/60 text-xs leading-relaxed max-w-xs whitespace-pre-wrap">
               {subtext || t('hero.subheadline')}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-secondary font-bold mb-6 text-lg tracking-wider uppercase text-xs">{t('nav.services')}</h4>
-            <ul className="space-y-4 text-white/70 text-sm">
+            <h4 className="text-secondary font-bold mb-4 tracking-wider uppercase text-[10px]">{t('nav.services')}</h4>
+            <ul className="space-y-2 text-white/70 text-xs">
               <li><Link to="/services" className="hover:text-secondary transition-colors">{t('nav.services')}</Link></li>
               <li><Link to="/products" className="hover:text-secondary transition-colors">{t('nav.products')}</Link></li>
               <li><Link to="/about" className="hover:text-secondary transition-colors">{t('nav.about')}</Link></li>
@@ -48,18 +48,18 @@ export function Footer() {
 
           {/* Contact Details */}
           <div>
-            <h4 className="text-secondary font-bold mb-6 text-lg tracking-wider uppercase text-xs">{isRtl ? 'اتصل بنا' : 'Contact Us'}</h4>
-            <ul className="space-y-4 text-white/70 text-sm">
+            <h4 className="text-secondary font-bold mb-4 tracking-wider uppercase text-[10px]">{isRtl ? 'اتصل بنا' : 'Contact Us'}</h4>
+            <ul className="space-y-2 text-white/70 text-xs">
               <li className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-secondary" />
+                <Mail className="w-3.5 h-3.5 text-secondary" />
                 <span>{email}</span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-secondary" />
+                <Phone className="w-3.5 h-3.5 text-secondary" />
                 <span dir="ltr">{phone}</span>
               </li>
               <li className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-secondary" />
+                <MapPin className="w-3.5 h-3.5 text-secondary" />
                 <span>{address}</span>
               </li>
             </ul>
@@ -67,16 +67,16 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="text-secondary font-bold mb-6 text-lg tracking-wider uppercase text-xs">{isRtl ? 'قانوني' : 'Legal'}</h4>
-            <ul className="space-y-4 text-white/70 text-sm">
+            <h4 className="text-secondary font-bold mb-4 tracking-wider uppercase text-[10px]">{isRtl ? 'قانوني' : 'Legal'}</h4>
+            <ul className="space-y-2 text-white/70 text-xs">
               <li><Link to="/privacy" className="hover:text-secondary transition-colors">{isRtl ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link></li>
               <li><Link to="/terms" className="hover:text-secondary transition-colors">{isRtl ? 'شروط الخدمة' : 'Terms of Service'}</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-white/40 text-xs text-center">
-          <p>© {new Date().getFullYear()} First Class Co. All rights reserved.</p>
+        <div className="pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-white/40 text-[10px] text-center">
+          <p>© {new Date().getFullYear()} First Class Advanced Co. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link to="/" className="hover:text-white transition-colors">Home</Link>
             <Link to="/admin" className="hover:text-white transition-colors">Admin Console</Link>

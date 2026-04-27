@@ -56,13 +56,13 @@ export function ServicesPage() {
     <div className="pt-24 min-h-screen bg-background">
       <SEO title={seoTitle || title} description={description} />
       {/* Page Header */}
-      <section className="bg-accent/40 py-24 relative overflow-hidden">
+      <section className="bg-accent/40 py-32 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-secondary/5 -skew-x-12 translate-x-1/2" />
-        <div className="container mx-auto px-4 relative z-10 text-center md:text-left max-w-4xl mr-auto ml-0">
+        <div className="container mx-auto px-4 relative z-10 text-center">
            <motion.div
-             initial={{ opacity: 0, x: -20 }}
-             animate={{ opacity: 1, x: 0 }}
-             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white text-xs font-bold uppercase tracking-widest mb-8"
+             initial={{ opacity: 0, scale: 0.8 }}
+             animate={{ opacity: 1, scale: 1 }}
+             className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-primary text-white text-sm font-bold uppercase tracking-[0.3em] mb-10"
            >
              {isRtl ? 'حلولنا' : 'Our Solutions'}
            </motion.div>
@@ -70,7 +70,7 @@ export function ServicesPage() {
              initial={{ opacity: 0, y: 30 }}
              animate={{ opacity: 1, y: 0 }}
              transition={{ delay: 0.1 }}
-             className="text-5xl md:text-7xl font-bold text-primary mb-8 tracking-tighter"
+             className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary mb-10 tracking-tighter"
            >
              {title}
            </motion.h1>
@@ -78,10 +78,11 @@ export function ServicesPage() {
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
              transition={{ delay: 0.2 }}
-             className="text-2xl text-muted-foreground leading-relaxed"
+             className="text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-4xl mx-auto"
            >
              {description}
            </motion.p>
+           <div className="w-32 h-2 bg-secondary mx-auto mt-12 rounded-full" />
         </div>
       </section>
 
@@ -105,10 +106,10 @@ export function ServicesPage() {
                       <div className={cn("w-20 h-20 rounded-3xl flex items-center justify-center mb-10 transition-transform group-hover:rotate-12 group-hover:scale-110 duration-500", service.color)}>
                         <Icon className="h-10 w-10" />
                       </div>
-                      <CardTitle className="text-3xl font-bold mb-6 group-hover:text-secondary transition-colors tracking-tight">
+                      <CardTitle className="text-xl md:text-2xl font-bold mb-6 group-hover:text-secondary transition-colors tracking-tight">
                         {service.title}
                       </CardTitle>
-                      <CardDescription className="text-lg leading-relaxed text-muted-foreground mb-8">
+                      <CardDescription className="text-base md:text-lg leading-relaxed text-muted-foreground mb-8">
                         {service.description}
                       </CardDescription>
                       
@@ -140,8 +141,8 @@ export function ServicesPage() {
          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
          <div className="container mx-auto px-4 relative z-10">
             <div className="text-center max-w-3xl mx-auto mb-20">
-               <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">{isRtl ? 'كيف نعمل؟' : 'How We Work'}</h2>
-               <p className="text-xl text-white/70">{isRtl ? 'نتبع نهجاً منهجياً لضمان أفضل النتائج لعملائنا.' : 'We follow a systematic approach to ensure best results for our clients.'}</p>
+               <h2 className="text-3xl md:text-4xl font-bold mb-6 tracking-tight">{isRtl ? 'كيف نعمل؟' : 'How We Work'}</h2>
+               <p className="text-lg text-white/70">{isRtl ? 'نتبع نهجاً منهجياً لضمان أفضل النتائج لعملائنا.' : 'We follow a systematic approach to ensure best results for our clients.'}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
@@ -176,10 +177,10 @@ export function ServicesPage() {
             <div className="bg-accent/40 rounded-[4rem] p-12 md:p-20 text-center relative overflow-hidden group">
                <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700" />
                <div className="relative z-10">
-                  <h2 className="text-4xl md:text-6xl font-bold text-primary mb-8 tracking-tighter">
+                  <h2 className="text-3xl md:text-4xl font-bold text-primary mb-8 tracking-tighter">
                      {isRtl ? 'جاهز لتحسين أعمالك؟' : 'Ready to Optimize Your Business?'}
                   </h2>
-                  <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
+                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-12">
                      {isRtl ? 'تواصل معنا اليوم وسيقدم لك خبراؤنا أفضل الحلول المتاحة.' : 'Contact us today and our experts will provide you with the best available solutions.'}
                   </p>
                   <button className="bg-primary hover:bg-primary/90 text-white px-12 h-16 rounded-2xl font-bold text-xl shadow-2xl shadow-primary/20 transition-all hover:-translate-y-1">

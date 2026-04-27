@@ -155,25 +155,35 @@ export function BlogManager() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!editing) return;
     const method = editing.id ? 'PUT' : 'POST';
     const url = editing.id ? `/api/cms/posts/${editing.id}` : '/api/cms/posts';
     
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editing)
-    });
-    if (res.ok) {
-      toast.success('Post published');
-      setEditing(null);
-      fetch('/api/cms/posts').then(res => res.json()).then(setPosts);
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editing)
+      });
+      if (res.ok) {
+        toast.success('Post published');
+        setEditing(null);
+        fetch('/api/cms/posts').then(res => res.json()).then(setPosts).catch(() => {});
+      }
+    } catch (err) {
+      toast.error('Failed to save post');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this post?')) return;
-    await fetch(`/api/cms/posts/${id}`, { method: 'DELETE' });
-    setPosts(posts.filter(p => p.id !== id));
+    try {
+      await fetch(`/api/cms/posts/${id}`, { method: 'DELETE' });
+      setPosts(posts?.filter(p => p.id !== id) || []);
+      toast.success('Post deleted');
+    } catch (err) {
+      toast.error('Failed to delete post');
+    }
   };
 
   if (editing) {
@@ -196,7 +206,7 @@ export function BlogManager() {
                    <Label>Post Title</Label>
                    <Input 
                      className="text-2xl font-bold h-16 border-none bg-accent/30 focus-visible:ring-0" 
-                     value={editing.title} 
+                     value={editing.title || ''} 
                      onChange={e => setEditing({...editing, title: e.target.value})} 
                      placeholder="Enter title here..." 
                    />
@@ -205,7 +215,7 @@ export function BlogManager() {
                    <Label>Content</Label>
                    <textarea 
                      className="w-full min-h-[400px] p-4 rounded-xl border border-input bg-white focus:ring-2 focus:ring-primary outline-none font-sans text-lg"
-                     value={editing.content} 
+                     value={editing.content || ''} 
                      onChange={e => setEditing({...editing, content: e.target.value})}
                      placeholder="Write your content here..."
                    />
@@ -220,15 +230,15 @@ export function BlogManager() {
                <CardContent className="space-y-4">
                  <div className="space-y-2">
                    <Label>Featured Image URL</Label>
-                   <Input value={editing.featuredImage} onChange={e => setEditing({...editing, featuredImage: e.target.value})} placeholder="https://..." />
+                   <Input value={editing.featuredImage || ''} onChange={e => setEditing({...editing, featuredImage: e.target.value})} placeholder="https://..." />
                  </div>
                  <div className="space-y-2">
                    <Label>Category</Label>
-                   <Input value={editing.category} onChange={e => setEditing({...editing, category: e.target.value})} placeholder="Business, Tech, etc." />
+                   <Input value={editing.category || ''} onChange={e => setEditing({...editing, category: e.target.value})} placeholder="Business, Tech, etc." />
                  </div>
                  <div className="space-y-2">
                    <Label>Slug</Label>
-                   <Input value={editing.slug} onChange={e => setEditing({...editing, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} placeholder="post-url-slug" />
+                   <Input value={editing.slug || ''} onChange={e => setEditing({...editing, slug: e.target.value?.toLowerCase().replace(/ /g, '-')})} placeholder="post-url-slug" />
                  </div>
                </CardContent>
              </Card>
@@ -251,18 +261,20 @@ export function BlogManager() {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map(post => (
+        {posts?.map(post => (
           <Card key={post.id} className="overflow-hidden group hover:shadow-2xl transition-all duration-500 border-none">
             <div className="aspect-video relative overflow-hidden">
-               <img src={post.featuredImage} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={post.title} />
+               <img src={post.featuredImage || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80'} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={post.title} />
                <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-bold text-primary">{post.category}</span>
+                  <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-bold text-primary">{post.category || 'General'}</span>
                </div>
             </div>
             <CardContent className="p-6">
                <h3 className="font-bold text-xl mb-4 group-hover:text-primary transition-colors line-clamp-2">{post.title}</h3>
                <div className="flex items-center justify-between">
-                 <span className="text-sm text-muted-foreground italic">{new Date(post.createdAt).toLocaleDateString()}</span>
+                 <span className="text-sm text-muted-foreground italic">
+                    {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'Just now'}
+                 </span>
                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button variant="ghost" size="icon" onClick={() => setEditing(post)}><Edit3 className="w-4 h-4" /></Button>
                     <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(post.id)}><Trash2 className="w-4 h-4" /></Button>

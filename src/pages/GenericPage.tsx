@@ -42,8 +42,7 @@ export function GenericPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <div className="min-h-screen flex flex-col pt-24">
       <main className="flex-1">
         {/* Banner */}
         <div className="bg-primary py-20 md:py-32 text-center relative overflow-hidden">
@@ -65,7 +64,6 @@ export function GenericPage() {
            />
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

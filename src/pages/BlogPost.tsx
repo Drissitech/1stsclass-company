@@ -36,8 +36,7 @@ export function BlogPostPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <div className="min-h-screen flex flex-col pt-24">
       <main className="flex-1">
         <article>
            {/* Hero */}
@@ -85,7 +84,6 @@ export function BlogPostPage() {
            </div>
         </article>
       </main>
-      <Footer />
     </div>
   );
 }

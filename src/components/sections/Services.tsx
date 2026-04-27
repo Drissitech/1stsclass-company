@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { Search, Globe, Truck, FileText, Handshake, Shield } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { getServices, getSiteContent } from '@/lib/dynamicContent';
 import { cn } from '@/lib/utils';
@@ -45,12 +46,13 @@ export function Services() {
   return (
     <section id="services" className="py-24 bg-accent/30 overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mb-16">
+        {/* Centered Heading */}
+        <div className="max-w-4xl mx-auto text-center mb-16">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-primary mb-6"
+            className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-6"
           >
             {title}
           </motion.h2>
@@ -59,13 +61,14 @@ export function Services() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-lg text-muted-foreground whitespace-pre-wrap"
+            className="text-base md:text-lg text-muted-foreground whitespace-pre-wrap max-w-3xl mx-auto"
           >
             {description}
           </motion.p>
+          <div className="w-20 h-1.5 bg-secondary mx-auto mt-8 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 max-w-7xl mx-auto">
           {displayServices.map((service, index) => {
             const Icon = service.icon;
             return (
@@ -75,17 +78,18 @@ export function Services() {
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
+                className="h-full"
               >
-                <Card className="h-full border-none shadow-xl shadow-primary/5 hover:shadow-secondary/10 transition-all group overflow-hidden bg-background">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-bl-full translate-x-12 -translate-y-12 group-hover:translate-x-0 group-hover:-translate-y-0 transition-transform duration-500" />
-                  <CardHeader>
-                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110", service.color)}>
-                      <Icon className="h-7 w-7" />
+                <Card className="h-full border-none shadow-2xl shadow-primary/5 hover:shadow-secondary/20 transition-all duration-500 group overflow-hidden bg-background p-4 rounded-[2.5rem]">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-bl-full translate-x-16 -translate-y-16 group-hover:translate-x-0 group-hover:-translate-y-0 transition-transform duration-700" />
+                  <CardHeader className="p-6">
+                    <div className={cn("w-20 h-20 rounded-3xl flex items-center justify-center mb-8 transition-all group-hover:bg-primary group-hover:text-white shadow-lg", service.color)}>
+                      <Icon className="h-10 w-10" />
                     </div>
-                    <CardTitle className="text-xl font-bold mb-4 group-hover:text-secondary transition-colors">
+                    <CardTitle className="text-2xl font-bold mb-4 group-hover:text-secondary transition-colors leading-tight">
                       {service.title}
                     </CardTitle>
-                    <CardDescription className="text-base leading-relaxed">
+                    <CardDescription className="text-lg leading-relaxed text-muted-foreground/90">
                       {service.description}
                     </CardDescription>
                   </CardHeader>
@@ -101,12 +105,11 @@ export function Services() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <a 
-            href="/services" 
-            className="inline-flex items-center gap-2 bg-secondary text-white px-10 py-4 rounded-xl font-bold hover:bg-secondary/90 transition-all shadow-xl shadow-secondary/20"
-          >
-            {isRtl ? 'عرض جميع الخدمات' : 'See All Services'}
-          </a>
+          <Button asChild size="lg" className="h-16 px-12 rounded-full font-bold text-xl shadow-xl shadow-secondary/20">
+            <a href="/services">
+              {isRtl ? 'عرض جميع الخدمات' : 'See All Services'}
+            </a>
+          </Button>
         </motion.div>
       </div>
     </section>

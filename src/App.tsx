@@ -9,7 +9,6 @@ import { ContactForm } from '@/components/sections/ContactForm';
 import { Toaster } from '@/components/ui/sonner';
 import { AdminLogin } from '@/pages/admin/Login';
 import { AdminDashboard } from '@/pages/admin/Dashboard';
-import { Blog } from '@/pages/Blog';
 import { ArticleDetail } from '@/pages/ArticleDetail';
 import { FloatingContact } from '@/components/ui/FloatingContact';
 import { SEO } from '@/components/ui/SEO';
@@ -55,7 +54,6 @@ function Home() {
       <Products />
       <WhyUs />
       <ContactForm />
-      <Footer />
     </main>
   );
 }
@@ -103,6 +101,8 @@ export default function App() {
         <Route path="/admin/*" element={<AdminDashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      
+      <Footer />
       
       {/* Floating components (Hiding on Admin routes could be done by location check) */}
       <FloatingContact phone={phone} />

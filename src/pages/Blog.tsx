@@ -18,23 +18,22 @@ export function BlogPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <div className="min-h-screen flex flex-col pt-24">
       <main className="flex-1">
-        <header className="bg-slate-50 border-b py-20">
+        <header className="bg-slate-50 border-b py-12">
            <div className="container mx-auto px-4 max-w-6xl text-center">
-              <h1 className="text-primary mb-6">Concierge Insights</h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Expert perspective on the intersection of luxury, business, and innovation.</p>
+              <h1 className="text-primary mb-4">Concierge Insights</h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Expert perspective on the intersection of luxury, business, and innovation.</p>
            </div>
         </header>
 
-        <section className="py-20 bg-white">
+        <section className="py-12 bg-white">
            <div className="container mx-auto px-4 max-w-7xl">
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
                  {loading ? (
                     Array(6).fill(0).map((_, i) => (
                       <div key={i} className="animate-pulse space-y-4">
-                        <div className="aspect-video bg-slate-200 rounded-2xl" />
+                        <div className="aspect-video bg-slate-200 rounded-xl" />
                         <div className="h-4 bg-slate-200 w-1/4 rounded" />
                         <div className="h-8 bg-slate-200 w-full rounded" />
                         <div className="h-4 bg-slate-200 w-2/3 rounded" />
@@ -43,7 +42,7 @@ export function BlogPage() {
                  ) : posts.map(post => (
                     <Link key={post.id} to={`/blog/${post.slug}`} className="group">
                        <Card className="border-none shadow-none overflow-hidden h-full flex flex-col">
-                          <div className="aspect-[16/10] overflow-hidden rounded-2xl mb-6">
+                          <div className="aspect-video overflow-hidden rounded-xl mb-4">
                              <img 
                                src={post.featuredImage} 
                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
@@ -51,16 +50,16 @@ export function BlogPage() {
                              />
                           </div>
                           <CardContent className="p-0 flex-1 flex flex-col">
-                             <div className="flex items-center gap-3 mb-4">
-                               <Badge variant="secondary" className="bg-secondary/10 text-secondary hover:bg-secondary/20">{post.category}</Badge>
-                               <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <Clock className="w-3 h-3" /> {new Date(post.createdAt).toLocaleDateString()}
+                             <div className="flex items-center gap-3 mb-3">
+                               <Badge variant="secondary" className="bg-secondary/10 text-secondary hover:bg-secondary/20 text-[10px]">{post.category}</Badge>
+                               <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                  <Clock className="w-2.5 h-2.5" /> {new Date(post.createdAt).toLocaleDateString()}
                                </span>
                              </div>
-                             <h3 className="text-2xl font-bold mb-4 line-clamp-2 group-hover:text-primary transition-colors">{post.title}</h3>
-                             <p className="text-muted-foreground line-clamp-3 mb-6">Explore the full article to gain deeper insights into this topic.</p>
-                             <div className="mt-auto pt-4 flex items-center gap-2 text-primary font-bold transition-all group-hover:gap-4">
-                                Read Full Article <ArrowRight className="w-4 h-4 text-secondary" />
+                             <h3 className="text-lg font-bold mb-3 line-clamp-2 group-hover:text-primary transition-colors">{post.title}</h3>
+                             <p className="text-xs text-muted-foreground line-clamp-2 mb-4">Explore the full article to gain deeper insights into this topic.</p>
+                             <div className="mt-auto pt-3 flex items-center gap-2 text-primary font-bold transition-all group-hover:gap-3 text-xs">
+                                Read Full Article <ArrowRight className="w-3.5 h-3.5 text-secondary" />
                              </div>
                           </CardContent>
                        </Card>
@@ -70,7 +69,6 @@ export function BlogPage() {
            </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }

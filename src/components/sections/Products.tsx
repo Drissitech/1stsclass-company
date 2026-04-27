@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { Package, Box, Factory, Construction, Diamond } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { getProducts, getSiteContent } from '@/lib/dynamicContent';
 import { cn } from '@/lib/utils';
@@ -31,28 +32,31 @@ export function Products() {
   const hasDynamicProducts = dynProducts.length > 0;
 
   return (
-    <section id="products" className="py-24 bg-background relative">
+    <section id="products" className="py-32 bg-background relative overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        {/* Centered Heading */}
+        <div className="text-center max-w-4xl mx-auto mb-20">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-primary mb-6"
+            className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-6"
           >
             {title}
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-lg text-muted-foreground whitespace-pre-wrap"
+            transition={{ delay: 0.1 }}
+            className="text-base md:text-lg text-muted-foreground whitespace-pre-wrap max-w-3xl mx-auto"
           >
             {description}
           </motion.p>
+          <div className="w-24 h-1.5 bg-secondary mx-auto mt-8 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
            {hasDynamicProducts ? (
              dynProducts.map((product, index) => (
                 <motion.div
@@ -63,21 +67,22 @@ export function Products() {
                   transition={{ delay: index * 0.1 }}
                   className="group relative"
                 >
-                   <div className="absolute inset-0 bg-secondary/5 rounded-[2rem] transform translate-x-2 translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform" />
-                   <div className="relative bg-white border border-border overflow-hidden rounded-[2rem] h-full flex flex-col shadow-lg shadow-primary/5 group-hover:border-secondary/50 transition-colors">
-                      <div className="aspect-video bg-accent relative overflow-hidden">
-                         <img src={product.imageUrl} alt={isRtl ? product.nameAr : product.nameEn} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500" />
+                   <div className="absolute inset-0 bg-secondary/5 rounded-[3rem] transform translate-x-3 translate-y-3 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-500" />
+                   <div className="relative bg-white border border-border overflow-hidden rounded-[3rem] h-full flex flex-col shadow-2xl shadow-primary/5 group-hover:border-secondary/50 transition-all duration-500">
+                      <div className="aspect-[4/3] bg-accent relative overflow-hidden">
+                         <img src={product.imageUrl} alt={isRtl ? product.nameAr : product.nameEn} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                       </div>
                       <div className="p-8 flex flex-col flex-1 items-start">
-                         <h3 className="text-xl font-bold text-primary mb-3">
+                         <h3 className="text-2xl font-bold text-primary mb-4 group-hover:text-secondary transition-colors">
                            {isRtl ? product.nameAr : product.nameEn}
                          </h3>
-                         <p className="text-muted-foreground text-sm leading-relaxed mb-6 line-clamp-3">
+                         <p className="text-muted-foreground text-base leading-relaxed mb-8 line-clamp-3">
                             {isRtl ? product.descriptionAr : product.descriptionEn}
                          </p>
-                         <div className="mt-auto pt-4 flex items-center justify-between w-full border-t border-border/10">
-                            <span className="text-secondary font-bold text-sm">{product.price || t('nav.products')}</span>
-                            <Badge variant="outline" className="border-secondary/30 text-secondary uppercase tracking-widest text-[10px]">
+                         <div className="mt-auto pt-6 flex items-center justify-between w-full border-t border-border">
+                            <span className="text-secondary font-bold text-lg">{product.price || t('nav.products')}</span>
+                            <Badge variant="outline" className="border-secondary/30 text-secondary uppercase tracking-[0.2em] px-4 py-1.5 text-[10px] font-bold">
                                {t('nav.products')}
                             </Badge>
                          </div>
@@ -97,18 +102,18 @@ export function Products() {
                    transition={{ delay: index * 0.1 }}
                    className="group relative"
                  >
-                    <div className="absolute inset-0 bg-gold/5 rounded-[2rem] transform translate-x-2 translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform" />
-                    <div className="relative bg-white border border-border p-8 rounded-[2rem] h-full flex flex-col items-center text-center shadow-lg shadow-primary/5 group-hover:border-secondary/50 transition-colors">
-                       <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center mb-6", cat.color)}>
-                          <Icon className="h-8 w-8" />
+                    <div className="absolute inset-0 bg-gold/5 rounded-2xl transform translate-x-1.5 translate-y-1.5 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform" />
+                    <div className="relative bg-white border border-border p-6 rounded-2xl h-full flex flex-col items-center text-center shadow-lg shadow-primary/5 group-hover:border-secondary/50 transition-colors">
+                       <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-4", cat.color)}>
+                          <Icon className="h-6 w-6" />
                        </div>
-                       <h3 className="text-xl font-bold text-primary mb-4">
+                       <h3 className="text-lg font-bold text-primary mb-3">
                          {t(`products.categories.${cat.key}`)}
                        </h3>
-                       <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+                       <p className="text-muted-foreground text-xs leading-relaxed mb-4">
                          {i18n.language === 'ar' ? 'نحن نوفر أفضل الحلول لتأمين هذه المنتجات.' : 'We provide the best solutions to secure these products.'}
                        </p>
-                       <Badge variant="outline" className="mt-auto border-secondary/30 text-secondary uppercase tracking-widest px-4 py-1">
+                       <Badge variant="outline" className="mt-auto border-secondary/30 text-secondary uppercase tracking-widest px-3 py-0.5 text-[9px]">
                          {t('nav.products')}
                        </Badge>
                     </div>
@@ -122,33 +127,32 @@ export function Products() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-12 text-center"
+          className="mt-16 text-center"
         >
-          <a 
-            href="/products" 
-            className="inline-flex items-center gap-2 bg-primary text-white px-10 py-4 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-xl shadow-primary/20"
-          >
-            {isRtl ? 'مشاهدة جميع المنتجات' : 'View All Products'}
-          </a>
+          <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white h-16 px-12 rounded-full font-bold text-xl shadow-xl shadow-primary/20">
+            <a href="/products">
+              {isRtl ? 'مشاهدة جميع المنتجات' : 'View All Products'}
+            </a>
+          </Button>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-16 p-8 bg-accent/20 rounded-[2rem] border border-secondary/10 flex flex-col md:flex-row items-center justify-between gap-8"
+          className="mt-20 p-10 bg-accent/10 rounded-[3rem] border border-secondary/20 flex flex-col lg:flex-row items-center justify-between gap-10 max-w-7xl mx-auto"
         >
           <div className="flex items-center gap-6">
-             <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-                <Box className="h-8 w-8" />
+             <div className="w-20 h-20 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0 shadow-lg">
+                <Box className="h-10 w-10" />
              </div>
-             <p className="text-lg font-medium text-primary max-w-lg">
+             <p className="text-xl md:text-2xl font-bold text-primary max-w-2xl leading-tight">
                 {t('products.customRequest')}
              </p>
           </div>
-          <button className="bg-primary text-white px-8 h-14 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-xl shadow-primary/20">
+          <Button className="bg-primary text-white h-16 px-12 rounded-full font-bold text-xl hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 shrink-0">
             {t('contact.form.send')}
-          </button>
+          </Button>
         </motion.div>
       </div>
     </section>
